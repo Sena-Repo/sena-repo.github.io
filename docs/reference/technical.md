@@ -2,18 +2,18 @@
 
 ## 架构概览
 
-```text
-客户端（Flutter）                         服务端（FastAPI）
-────────────────────                      ───────────────────
-Windows / Android / Linux                 Docker / 裸机安装脚本
-  ├─ Provider 状态管理                       ├─ API Router
-  ├─ Service 业务层                           ├─ Scanner / Importer
-  ├─ Screen 页面层                            ├─ Scraper Orchestrator
-  ├─ aria2 + 7zip-zstd 下载解压               ├─ FileSource Adapter
-  └─ HTTP/HTTPS ──────────────────────────►  └─ SQLite + /data 文件数据
+```
+客户端（Flutter）                    服务端（FastAPI）
+─────────────────                    ─────────────────
+Windows / Android / Linux            Docker 或 Python 直接部署
+    │                                    │
+    ├─ Provider 层（状态管理）             ├─ API Router 层
+    ├─ Service 层（业务逻辑）             ├─ Service 层（刮削/扫描）
+    ├─ Screen 层（UI）                   ├─ Model 层（ORM）
+    └─ HTTP ──────────────────────────► └─ SQLite 数据库
 ```
 
-客户端通过 HTTP/HTTPS 连接服务端。服务端默认端口为 `11451`，浏览器 CORS 默认关闭，需要通过 `SENA_ALLOWED_ORIGINS` 显式配置。
+客户端通过 HTTP/HTTPS 连接服务端，认证使用 Bearer Token（随机十六进制字符串）。服务端默认端口 11451。
 
 ## 技术栈
 
@@ -21,197 +21,197 @@ Windows / Android / Linux                 Docker / 裸机安装脚本
 
 | 组件 | 技术 | 说明 |
 |------|------|------|
-| Web 框架 | FastAPI + Uvicorn | 异步 Python API |
-| ORM | SQLAlchemy 2.0 async | 异步数据库访问 |
-| 数据库 | SQLite + aiosqlite | 默认保存在 `/data/sena_repo.db` |
-| 密码 | bcrypt | 兼容旧 SHA-256 哈希 |
-| 会话 | `user_sessions` + token hash | Token 明文只返回给客户端，服务端存 SHA256 |
-| HTTP 客户端 | httpx | 刮削、OpenList、外部资源下载 |
-| 文件源 | Local / OpenList Adapter | 统一扫描本地目录与 OpenList |
-| 容器 | Docker python:3.11-slim | 内置 `senacli` 与 7z 依赖 |
+| Web 框架 | FastAPI + Uvicorn | 异步 Python Web 框架 |
+| ORM | SQLAlchemy 2.0 (async) | 异步数据库操作 |
+| 数据库 | SQLite (aiosqlite) | 嵌入式数据库，数据文件在 `/data` |
+| 密码 | bcrypt | 密码哈希与验证 |
+| HTTP 客户端 | httpx | 异步刮削请求 |
+| 配置 | YAML + 环境变量 | 优先级：CLI > 环境变量 > config.yaml |
+| 容器化 | Docker (python:3.11-slim) | 支持 AMD64 / ARM64 |
 
 ### 客户端
 
 | 组件 | 技术 | 说明 |
 |------|------|------|
-| 框架 | Flutter 3.29 | Windows / Android / Linux |
-| 状态管理 | Provider | 游戏库、设置、主题 |
-| 网络 | package:http | API 请求和 Dart 下载回退 |
-| 下载 | 内置 aria2 | 优先分片下载，失败时降并发或回退 |
-| 解压 | 7zip-zstd | Windows / Linux / Android 内置二进制 |
-| 存储 | shared_preferences + flutter_secure_storage | 本地设置与 token |
-| 桌面 | window_manager + tray_manager | 单实例、窗口、托盘 |
-| 权限 | permission_handler | Android 所有文件访问权限 |
+| 框架 | Flutter 3.29 | 跨平台 UI |
+| 状态管理 | Provider (ChangeNotifier) | 游戏库、主题、设置 |
+| 网络 | package:http | HTTP 请求 |
+| 解压 | 7zip-zstd（内嵌二进制） | Windows/Linux/Android |
+| 桌面 | window_manager + tray_manager | Windows 托盘、窗口管理 |
+| 通知 | flutter_local_notifications | Android 下载进度通知 |
+| 存储 | shared_preferences + flutter_secure_storage | 本地配置、Token 安全存储 |
+| 权限 | permission_handler | Android MANAGE_EXTERNAL_STORAGE |
 
-## 服务端 API
+## 服务端详解
 
-```text
-/api/auth/*         登录、注册、用户管理、通知、头像上传
-/api/games/*        游戏 CRUD、搜索、版本移动
-/api/tags/*         标签 CRUD
-/api/roots/*        游戏库根目录管理、扫描触发
-/api/file-sources/* OpenList 服务器管理
-/api/download/*     签名下载链接、本地文件流、OpenList 跳转、管理器安装链接
-/api/files/*        封面、背景、头像静态文件服务
-/api/scrape/*       刮削搜索、应用结果、批量任务
-/api/settings/*     扫描设置、刮削配置、加密状态、回收站
-/api/setup/*        首次初始化向导
-/api/steam/*        Steam 补丁根目录、索引、匹配、下载
-/api/health         健康检查
+### 入口点
+
+`server/main.py` — FastAPI 应用入口。注册所有 API 路由，配置 CORS（`allow_origins=["*"]`），设置 lifespan 事件初始化数据库并启动自动扫描后台任务。
+
+### API 路由
+
+```
+/api/auth/*         — 登录、注册、用户管理、通知、头像上传
+/api/games/*        — 游戏 CRUD、搜索、版本移动
+/api/tags/*         — 标签 CRUD
+/api/roots/*        — 根目录管理、扫描触发
+/api/file-sources/* — OpenList 服务器管理
+/api/download/*     — 游戏文件下载（本地/OpenList 302 重定向）
+/api/files/*        — 封面/背景/头像静态文件服务
+/api/scrape/*       — 刮削搜索、元数据应用、封面管理
+/api/settings/*     — 扫描设置、刮削配置、回收站
+/api/setup/*        — 初始化向导（首次设置）
+/api/steam/*        — Steam 补丁匹配、索引、下载
 ```
 
-除登录、注册、初始化和健康检查外，API 需要 Bearer Token。Token 按 `SENA_TOKEN_EXPIRE_DAYS` 设置过期时间，服务端只存 token hash，并在接近半程时刷新会话过期时间。
+除 `/api/auth/login`、`/api/auth/register`、`/api/setup/*` 和健康检查外，所有端点需要 `Authorization: Bearer <token>` 认证。游戏列表、详情、搜索等只读端点也需要认证。
 
-## 数据模型
+### 数据模型
 
-```text
-User ──► UserSession
-  │         ├─ token_hash
-  │         ├─ expires_at / revoked_at
-  │         └─ device_name / last_seen_at
-  ├─ role: owner / admin / user
-  ├─ status: active / pending / rejected
+```
+User ──► Notification
+  │         └─ target_user_id
+  ├─ username
+  ├─ password_hash + salt
+  ├─ token（随机 hex，64 字符）
+  ├─ is_admin
+  ├─ status（active / pending）
   └─ avatar_path
 
 Game ──► GameVersion
-  │         ├─ platform / filename / file_path
-  │         ├─ source_type / source_id / source_path
-  │         ├─ extract_password
-  │         └─ checksum_algo / checksum
-  ├─ Company
+  │         └─ platform, filename, file_size, extract_password
+  ├─ Company（多对一）
   ├─ GameTag ──► Tag
-  ├─ RootDirectory
-  ├─ cover_path / bg_path / is_nsfw
-  └─ vndb_id / steam_id / bangumi_id / hikarinagi_id
+  ├─ RootDirectory（多对一）
+  ├─ cover_path, bg_path
+  ├─ developer, alias, description
+  └─ vndb_id, steam_id, bangumi_id
 
-FileSource
-  ├─ type: local / openlist
-  ├─ base_url
-  ├─ username
-  └─ encrypted password
-
-SteamPatchRoot
-  ├─ source_type / source_id / source_name
+RootDirectory
+  ├─ type（local / openlist）
   ├─ path
-  └─ analysis_mode: auto / manual
+  ├─ structure（company_game / game_only / flat）
+  └─ file_source_id（OpenList 源 ID，可为空）
+
+FileSource（OpenList 服务器）
+  ├─ url
+  ├─ username
+  └─ password
 ```
 
-## 扫描与导入
+### 扫描与导入流程
 
-`services/scanner.py` 支持按游戏目录深度扫描：
+1. `POST /api/roots/refresh-all` 触发全量扫描
+2. `services/file_source.py` 根据根目录类型选择本地文件或 OpenList 适配器
+3. `services/scanner.py` 遍历根目录，识别会社/游戏/版本层级
+4. 文件名清洗：正则提取平台标识 `[PC]` `[KRKR]` `[RPG]` 等
+5. 支持的压缩格式：`.zip` `.rar` `.7z` `.tar` `.gz` `.xz` `.apk`
+6. `services/importer.py` 将扫描结果写入数据库，新增/更新/标记孤立记录
 
-| 深度 | 结构 | 示例 |
-|------|------|------|
-| `0` | 扁平 | `root/archive.zip` |
-| `1` | 仅游戏 | `root/game/archive.zip` |
-| `2` | 会社 / 游戏 | `root/company/game/archive.zip` |
-| `3+` | 更深层级 | `root/.../company/game/archive.zip` |
+### 下载流程
 
-扫描流程：
+**本地文件源：**
 
-1. `POST /api/roots/refresh-all` 或 `senacli scan` 触发扫描。
-2. `RootDirectory.source_type` 决定使用本地目录或 OpenList Adapter。
-3. Scanner 按深度收集游戏目录和压缩包。
-4. 文件名规则提取平台标识和游戏名。
-5. Importer 新增、更新或标记孤立游戏和版本。
-6. 可选触发批量刮削。
-
-支持压缩格式：`.zip`、`.rar`、`.7z`、`.tar`、`.gz`、`.xz`、`.apk`。平台标识包括 `[PC]`、`[KRKR]`、`[KR]`、`[Ty]`、`[Ar]`、`[ONS]`、`直装_`，`.apk` 会自动归类为 Android 直装。
-
-## 文件源与下载
-
-### 本地文件源
-
-```text
-客户端 POST /api/download/{gameId}/{versionId}/link
-  → 服务端生成短期签名 URL
-  → 客户端 GET /api/download/signed/{gameId}/{versionId}
+```
+客户端 GET /api/download/{gameId}/{versionId}
   → 服务端 FileResponse 返回文件流
+  → 客户端 stream 写入临时文件
+  → 7zip-zstd 解压到本地下载目录
 ```
 
-签名下载链接会根据文件大小设置 TTL：10GB 以下约 2 小时，10GB 以上约 4 小时，20GB 以上约 6 小时。
+**OpenList 文件源：**
 
-### OpenList 文件源
-
-```text
-客户端请求签名下载 URL
-  → Sena 用 OpenList /api/fs/get 获取签名入口
-  → Sena 返回 302 到 OpenList /d/...
-  → OpenList 返回 302 到网盘 / CDN
-  → 客户端直连最终地址下载
+```
+客户端 GET /api/download/{gameId}/{versionId}
+  → 服务端获取 OpenList token → 调用 /api/fs/get 获取签名 URL
+  → 服务端返回 302 重定向至 OpenList /d/... 签名 URL
+  → 客户端跟随 → OpenList 返回 302 至网盘/CDN
+  → 客户端直连 CDN 下载（绕过服务端带宽限制）
 ```
 
-OpenList 下载默认不代理大文件流量。只有设置 `SENA_ALLOW_OPENLIST_PROXY=true` 时，服务端才允许兼容性排查用代理下载。
+下载器只将 Sena Token 发给 Sena 服务端，后续跳转不携带认证头，确保令牌不泄露给第三方。
 
-### 外部管理器
+客户端下载进度 UI 约每 250ms 刷新一次，任务状态约每 2 秒持久化一次，避免每个网络分片都写 SharedPreferences。
 
-`POST /api/download/{gameId}/{versionId}/manager-install-link` 可生成：
+### 刮削流程
 
-- `lunabox://install?...`
-- `reinamanager://install?...`
-
-服务端会校验压缩格式、文件大小、解压密码限制，并尽量附带 SHA256 checksum。管理器链接使用 `SENA_MANAGER_SIGNING_KEY` 或数据目录内生成的密钥签名。
-
-## 刮削架构
-
-当前可用刮削器：
-
-| Source | 文件 | 状态 |
-|--------|------|------|
-| `hikarinagi` | `services/scraper/hikarinagi.py` | 已支持，需要 Client ID / Secret |
-| `vndb_kana` | `services/scraper/vndb_kana.py` | 已支持，可选 Token |
-| `bangumi` | `services/scraper/bangumi.py` | 已支持，可选 Token |
-| `steam` | `services/scraper/steam.py` | 已支持，免认证 |
-| `nextmoe` | 待实现 | 支持开发中，文档保留入口 |
-
-默认顺序为 `hikarinagi`、`vndb_kana`、`bangumi`、`steam`。`scraper_order` 和 `enabled_scrapers` 可通过环境变量、配置文件、初始化向导或设置页持久化配置。
-
-批量刮削由 `services/scraper/orchestrator.py` 分发，支持 `none`、`missing`、`overwrite`、`metadata`、`images` 等模式。平均游玩时长目前优先来源于 VNDB。
-
-## 客户端下载管线
-
-```text
-GameDetailScreen 选择版本
-  → ApiClient 创建下载链接
-  → DownloadService 创建任务
-  → aria2 尝试下载
-      ├─ 多分片下载
-      ├─ 降低分片重试
-      └─ 不适用时回退 Dart HTTP
-  → 7zip-zstd 解压
-  → 修正单顶层目录
-  → 完成弹窗 / Steam 导入 / 管理器推送
+```
+客户端选择刮削源 → 输入搜索关键词
+  → GET /api/scrape/search?q=xxx&source=vndb_kana
+  → 服务端调用对应刮削器（VNDB / Steam / Bangumi / Kungal 等）
+  → 返回结果列表 → 客户端选择 → 逐字段对比
+  → POST /api/scrape/apply → 服务端写入数据库，封面/背景异步下载
 ```
 
-下载进度 UI 节流刷新；任务状态定期持久化；Android 通知按固定间隔更新。OpenList 下载不会把 Sena Token 传给 OpenList 或 CDN。
+### Steam 补丁注入（PC）
 
-## Steam 补丁
-
-```text
-SteamPatchRoot
-  → 扫描本地目录或 OpenList 补丁目录
-  → scan_patches.py 分析补丁文件
-  → patches.json 保存 AppID、路径、类型、patch_dir、target_dir
-  → 客户端扫描本机 steamapps
-  → 服务端按 AppID 匹配
-  → 客户端下载并解压注入
+```
+客户端扫描 steamapps 目录 → 提取 appmanifest_*.acf → 获取 app_id
+  → POST /api/steam/scan {games: [{app_id, name, install_dir}]}
+  → 服务端用 patches.json 按 app_id 匹配
+  → 返回匹配结果 → 客户端显示 → 点击注入 → 下载解压到游戏目录
 ```
 
-补丁类型关键词保存在 `patch_type_keywords.json`。规则可在客户端编辑，也可通过 `senacli backup` / `senacli restore` 备份和恢复。
+### 页面导航（home_screen.dart）
 
-## 部署与维护
+底部/侧边导航使用 `IndexedStack` 保活所有页面：
 
-- DockerHub / GHCR 镜像支持 amd64 和 arm64。
-- Docker 镜像内置 `senacli`。
-- 裸机安装脚本会安装依赖、创建 venv、注册 systemd 服务和 `senacli`。
-- `senacli status` 可查看服务、数据库、目录、扫描和刮削状态。
-- `senacli update` 仅用于裸机部署；Docker 部署应在宿主机重建容器。
+```
+游戏库（GameProvider 驱动）
+  → 搜索/排序/过滤 → GameDetailScreen → GameEditScreen
 
-## 安全要点
+Steam 补丁（SteamPatchScreen）
+  → 客户端 Tab + 服务端 Tab
 
-- 密码使用 bcrypt，新版会话 token 只存 SHA256 hash。
-- OpenList 等持久化凭据会使用 Fernet 加密，建议跨实例部署时固定 `SENA_ENCRYPTION_KEY`。
-- 管理器下载链接为短期签名 URL，建议固定 `SENA_MANAGER_SIGNING_KEY` 以便迁移。
-- 外部图片 URL 下载会做协议与目标校验。
-- 文件服务限制图片扩展名。
-- 不建议直接暴露公网；优先放在 VPN、家庭内网或受控反代之后。
+我的（ProfileScreen）
+  → 设置（SettingsScreen）→ 下载设置 / 扫描设置 / 刮削配置
+  → 个人信息编辑（ProfileEditScreen）
+```
+
+## 跨平台适配
+
+| 平台 | 特殊处理 |
+|------|---------|
+| Windows | 单实例锁（窗口绑定）；窗口管理 + 托盘；7z.exe + 7z.dll；安装包（fastforge + Inno Setup） |
+| Android | 存储权限（MANAGE_EXTERNAL_STORAGE）；7z ELF 通过 linker64 执行；通知权限；APK 直装 |
+| Linux | AppImage 打包；7zz 独立二进制；触摸屏环境变量 `GDK_BACKEND=wayland,x11` |
+
+### Linux Runner 触控补丁
+
+仓库不提交 `client/linux` 目录。GitHub Actions 在 Linux 构建阶段执行 `flutter create .` 生成 runner，然后调用：
+
+```bash
+python3 ../.github/scripts/patch_linux_runner_touch.py
+```
+
+该脚本修改生成后的 `linux/runner/main.cc` 和 `linux/runner/my_application.cc`：
+
+- 强制优先 `GDK_BACKEND=wayland,x11`
+- 输出 Linux 输入诊断日志到 stderr
+- 递归启用 GTK touch/button/motion 事件
+- 将单指 touch begin/update/end 桥接为鼠标左键 press/motion/release
+
+如需调整 Linux 触控兼容逻辑，应优先修改 `.github/scripts/patch_linux_runner_touch.py`，不要手动维护生成目录。
+
+## CI/CD
+
+三个 GitHub Actions 工作流（`.github/workflows/`）：
+
+| 文件 | 触发 | 构建产物 | 发布 |
+|------|------|---------|------|
+| `build.yml` | push dev/main | Android APK + Windows + Linux AppImage + Server Tarball；版本号显示为 `0.0.0` / `test` | 无 |
+| `build_Release.yml` | 手动 | 同上；版本号为正式版本号 | GitHub Release + GHCR `:latest` + DockerHub `:latest` |
+| `build_PreRelease.yml` | 手动 | 同上 | GitHub Pre-Release + DockerHub `:pre-release` |
+
+发布正式 Release 时会自动删除所有旧的 Pre-Release。Windows 安装包使用 fastforge + Inno Setup，支持中文安装界面、开始菜单快捷方式和卸载支持。
+
+## 安全设计
+
+- 密码使用 bcrypt 哈希，不存储明文
+- Token 为 32 字节随机十六进制字符串（64 字符），改密后立即重置，客户端同步更新会话
+- 所有 API 端点（除 login/register/setup/health）需要 Bearer Token 认证
+- 注册接口不允许申请管理员权限，需管理员单独授权
+- 自签 HTTPS 支持（客户端允许所有证书）
+- 文件服务仅允许图片扩展名（`.jpg` `.png` `.gif` `.webp` `.bmp`）
+- 外部 URL 下载前校验协议格式，防止 SSRF
+- OpenList 下载 302 跳转链中不携带 Sena Token，避免令牌泄露给第三方

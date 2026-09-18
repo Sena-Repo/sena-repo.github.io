@@ -27,10 +27,11 @@ Sena Repo 客户端（浏览、搜索、下载、解压、Steam 集成）
 | 能力 | 状态 |
 |------|------|
 | 游戏库扫描 | 支持本地目录与 OpenList 文件源，目录深度可在扫描设置中调整 |
-| 元数据刮削 | 已支持 Hikarinagi、VNDB Kana、Bangumi、Steam；NextMoe 支持开发中 |
+| 元数据刮削 | 支持 VNDB、Bangumi、Steam、Hikarinagi，以及 NextMoe 聚合模式；自动填充别名与游玩时长 |
 | 下载与解压 | 内置 aria2 下载优先，失败时回退 Dart 下载；解压使用 7zip-zstd |
 | OpenList 下载 | Sena 生成短期下载链接和 302 跳转，客户端直连 OpenList / 网盘 CDN |
-| Steam 补丁 | 服务端维护补丁索引，客户端扫描本机 Steam 库并执行注入 |
+| Steam 补丁 | 服务端维护补丁索引并支持元数据锁定，客户端扫描本机 Steam 库并执行注入 |
+| 备份与恢复 | `senacli backup` / `restore` 导出、导入游戏库、账号、补丁规则与图片，新服务端可在初始化向导中导入 |
 | 管理器推送 | 支持生成 `lunabox://install` 与 `reinamanager://install` 协议链接 |
 | 服务端维护 | Docker 镜像内置 `senacli`；裸机安装脚本会注册本地维护命令 |
 

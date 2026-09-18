@@ -10,7 +10,7 @@
 客户端请求下载链接
   → Sena 返回短期签名下载 URL
   → 客户端下载 Sena 服务端文件流
-  → 7zip-zstd 解压到本机下载目录
+  → 内置 7zip-zstd 解压到本机下载目录
 ```
 
 ### OpenList 文件源
@@ -26,13 +26,11 @@ OpenList 下载默认不占用 Sena 服务端大文件带宽。只有在兼容�
 
 ## aria2 与回退
 
-当前客户端优先使用内置 aria2 下载器：
+Windows、Linux 和 Android 客户端都内置 aria2，优先使用多连接分片下载：
 
-- Windows：`assets/binaries/aria2/windows-x64/aria2c.exe`
-- Linux：`assets/binaries/aria2/linux-x64/aria2c`
-- Android arm64：`assets/binaries/aria2/android-aarch64/aria2c`
-
-aria2 会尝试并发分片下载；遇到 OpenList/CDN 对多连接不友好的情况，会自动降低分片数。aria2 不可用或下载失败时，客户端会回退到 Dart HTTP 下载流程。
+- 遇到 OpenList / CDN 对多连接不友好时，会自动降低分片数。
+- 网盘来源会按来源类型使用浏览器 UA 并做降级重试。
+- aria2 不可用或下载失败时，回退到 Dart 分片 / 流式下载。
 
 ## 任务控制
 
@@ -48,13 +46,14 @@ aria2 会尝试并发分片下载；遇到 OpenList/CDN 对多连接不友好的
 
 ## 解压与完成操作
 
-下载完成后客户端使用内置 7zip-zstd 解压。版本如果预设了解压密码，解压时会自动使用；解压失败时会提示用户。
+下载完成后客户端使用内置 7zip-zstd 解压（Windows / Linux / Android）。版本如果预设了解压密码，解压时会自动使用；有密码但解压失败时会弹窗提示。
 
 桌面端完成后可执行：
 
+- 解压到下载目录
 - 打开目标文件夹
-- Windows 创建快捷方式
-- Windows / Linux 导入为 Steam 非 Steam 游戏
+- 创建快捷方式（Windows）
+- 导入为 Steam 非 Steam 游戏（Windows / Linux）
 - 推送到 LunaBox 或 ReinaManager 下载入库
 
 Android 端需要提前授予「所有文件访问」权限，否则无法稳定解压到共享存储。

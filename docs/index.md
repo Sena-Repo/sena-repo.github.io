@@ -25,13 +25,13 @@ features:
   - title: 跨平台客户端
     details: Windows、Android 与 Linux 客户端连接同一服务端，覆盖浏览、下载、解压与本地配置。
   - title: 多源元数据
-    details: 支持 Hikarinagi、VNDB Kana、Bangumi、Steam 的搜索与字段填充，NextMoe 支持正在开发。
+    details: 支持 VNDB、Bangumi、Steam、Hikarinagi 与 NextMoe 聚合刮削，自动填充别名与游玩时长。
   - title: OpenList 接入
     details: 可将 OpenList 作为游戏库或 Steam 补丁库来源，下载流量直连文件源。
   - title: Steam 补丁注入
-    details: 扫描补丁包并按 AppID 匹配本地 Steam 游戏，自动下载解压到目标目录，实现一键为Steam视觉小说游戏打补丁。
+    details: 扫描补丁包并按 AppID 匹配本地 Steam 游戏，自动下载解压到目标目录，支持元数据锁定。
   - title: 自托管部署
-    details: 服务端提供 Docker、Docker Compose、Tarball 和一键安装脚本，附带 senacli 维护命令。
+    details: 服务端提供 Docker、Docker Compose、Tarball 和一键安装脚本，附带 senacli 维护命令，支持备份导出与导入恢复。
 ---
 
 <script setup>

@@ -59,17 +59,20 @@ senacli clear --scrape missing
 
 修改用户名、密码或管理员权限会让目标用户现有登录态失效，需要重新登录。
 
-## 补丁规则备份
+## 备份与恢复
 
 ```bash
 senacli backup
 senacli backup /path/to/backup-dir
-senacli backup -o /path/to/backup.json
-senacli restore sena-steam-patch-rules-20260909-153000.json
-senacli restore rules.json --replace
+senacli backup -o /path/to/backup.zip
+senacli backup --json-only
+senacli backup --scope library
+senacli backup --scope patch
+senacli restore sena-backup-20260915-153000.zip
+senacli restore sena-backup-20260915-153000.zip -y
 ```
 
-`backup` / `restore` 用于导出和恢复 Steam 补丁匹配规则。恢复前会先备份当前索引，避免误覆盖。
+`backup` / `restore` 用于导出和恢复服务端数据：游戏库、账号、补丁规则与类型关键词，可选是否包含封面/背景/头像。`--scope` 支持 `all`（默认）、`library`（仅游戏库与账号）、`patch`（仅补丁规则）。恢复时会依次询问恢复范围、已存在条目如何处理、同名图片如何处理，`-y` 表示全部使用默认值；恢复前会先把现有补丁索引备份到 `backups/sena-backup/`。旧的仅补丁规则 JSON 备份仍可恢复。完整说明见 [备份与恢复](/server/#备份与恢复)。
 
 ## 裸机更新与卸载
 
