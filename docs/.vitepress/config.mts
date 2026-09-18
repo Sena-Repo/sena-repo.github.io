@@ -60,8 +60,7 @@ export default defineConfig({
         text: '部署与使用',
         items: [
           { text: '服务端部署', link: '/server/' },
-          { text: '客户端使用', link: '/client/' },
-          { text: 'OpenList 文件源', link: '/client/openlist' }
+          { text: '客户端使用', link: '/client/' }
         ]
       },
       {

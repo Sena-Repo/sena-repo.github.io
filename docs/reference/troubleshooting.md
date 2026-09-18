@@ -286,4 +286,4 @@ Sena Linux touch event: begin ...
 - [服务端 CLI](/server/cli)
 - [客户端使用](/client/)
 - [下载与解压](/features/downloads)
-- [OpenList 文件源](/client/openlist)
+- [OpenList 文件源](/client/#openlist-文件源)

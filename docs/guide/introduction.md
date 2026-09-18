@@ -39,5 +39,5 @@ Sena Repo 客户端（浏览、搜索、下载、解压、Steam 集成）
 1. [快速开始](/guide/quick-start)
 2. [服务端部署](/server/)
 3. [客户端使用](/client/)
-4. [OpenList 文件源](/client/openlist)
+4. [OpenList 文件源](/client/#openlist-文件源)
 5. [疑难排查](/reference/troubleshooting)

@@ -106,5 +106,5 @@ Android 首次下载和解压前需要授予「所有文件访问」权限。Win
 
 - 完整部署参数见 [服务端部署](/server/)。
 - 客户端页面说明见 [客户端使用](/client/)。
-- OpenList 接入见 [OpenList 文件源](/client/openlist)。
+- OpenList 接入见 [OpenList 文件源](/client/#openlist-文件源)。
 - 管理器协议推送见 [推送到管理器](/features/manager-push)。

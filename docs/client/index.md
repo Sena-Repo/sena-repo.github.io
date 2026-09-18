@@ -76,7 +76,19 @@ Windows、Linux 和 Android 客户端均内置 7zip-zstd 解压组件；下载�
 2. **配置目录与刮削**：添加游戏库目录、Steam 补丁目录、批量刮削字段来源、自动扫描开关与扫描间隔。
 3. **本地配置（可选）**：确认当前客户端的下载目录和 Steam 目录。
 
-游戏库目录和 Steam 补丁目录都支持本地路径或 OpenList 文件源。刮削源当前已支持 Hikarinagi、VNDB Kana、Bangumi 和 Steam；NextMoe 支持正在开发，文档中按开发中能力保留。
+### OpenList 文件源
+
+游戏库目录和 Steam 补丁目录都支持本地路径或 OpenList 文件源。选择 OpenList 时，在「配置目录与刮削」步骤中：
+
+1. 添加 OpenList 服务器，填写地址、用户名和密码；留空时使用 OpenList 访客模式。
+2. 填写 OpenList 地址，例如 `http://192.168.1.100:5244`。如果遗漏协议，服务端会尝试补 `http://`。
+3. 添加游戏库目录或 Steam 补丁目录时选择该 OpenList 服务器。
+4. 填写 OpenList 内部路径，例如 `/115/Games/GalGame/Library`。
+5. 选择目录结构 / 游戏目录深度。
+
+OpenList 地址必须同时能被 Sena 服务端和客户端设备访问；只在服务端可访问会导致扫描成功但客户端下载失败。使用 OpenList 文件源时，服务端无需挂载游戏目录，只需持久化 `/data`；补丁索引仍需通过 `SENA_PATCH_DIR`（例如 `/data/steam_patch`）保存 `patches.json` 和 `patch_type_keywords.json`。
+
+刮削源当前已支持 Hikarinagi、VNDB Kana、Bangumi 和 Steam；NextMoe 支持正在开发，文档中按开发中能力保留。
 
 初始化完成后，服务端会在后台自动触发首次扫描和刮削。
 
@@ -168,8 +180,6 @@ Steam 补丁页面分为「客户端」和「服务端」两个 Tab。
 | 下载设置 | 管理最大同时下载数、下载目录、限速和快捷方式保存位置 |
 | 显示设置 | 管理封面大小、外观偏好和主题色 |
 | 用户管理 | 管理注册审批、管理员权限和用户状态 |
-
-OpenList 文件源的添加步骤见 [OpenList 文件源](/client/openlist)。
 
 ## 用户与通知
 
