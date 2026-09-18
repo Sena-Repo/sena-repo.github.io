@@ -3,51 +3,60 @@ layout: home
 
 hero:
   name: Sena Repo
-  text: 使用文档
-  tagline: 这里整理 Sena-Repo 的安装、配置、使用方式与常见问题。
+  text: 视觉小说私有库管理器
+  tagline: 将NAS 或 OpenList 上的游戏收藏整理成可浏览、可搜索、可下载的私有库。
+  image:
+    src: /icon/appicon.png
+    alt: Sena Repo
   actions:
     - theme: brand
       text: 快速开始
-      link: /guide/getting-started
+      link: /guide/quick-start
     - theme: alt
-      text: 查看 GitHub
-      link: https://github.com/404-GCross/Sena-Repo
+      text: 下载客户端
+      link: https://github.com/404-GCross/Sena-Repo/releases
+    - theme: alt
+      text: 部署服务端
+      link: /server/
 
 features:
-  - title: 快速上手
-    details: 从环境准备到首次运行，按步骤完成最小可用流程。
-  - title: 配置清晰
-    details: 将常用配置项、默认值和注意事项集中整理。
-  - title: 便于维护
-    details: 基于 VitePress 与 GitHub Pages，文档更新后可自动部署。
+  - title: 私有游戏库
+    details: 按会社、游戏和版本文件组织资源，自动扫描并生成可筛选的视觉小说库。
+  - title: 跨平台客户端
+    details: Windows、Android 与 Linux 客户端连接同一服务端，覆盖浏览、下载、解压与本地配置。
+  - title: 多源元数据
+    details: 支持 Hikarinagi、VNDB Kana、Bangumi、Steam 的搜索与字段填充，NextMoe 支持正在开发。
+  - title: OpenList 接入
+    details: 可将 OpenList 作为游戏库或 Steam 补丁库来源，下载流量直连文件源。
+  - title: Steam 补丁注入
+    details: 扫描补丁包并按 AppID 匹配本地 Steam 游戏，自动下载解压到目标目录，实现一键为Steam视觉小说游戏打补丁。
+  - title: 自托管部署
+    details: 服务端提供 Docker、Docker Compose、Tarball 和一键安装脚本，附带 senacli 维护命令。
 ---
 
-## 这是什么？
+<script setup>
+import { withBase } from 'vitepress'
+</script>
 
-本网站是 [404-GCross/Sena-Repo](https://github.com/404-GCross/Sena-Repo) 的使用文档。
-
-你可以从 [快速开始](/guide/getting-started) 进入，先跑通最短流程；之后再根据需要阅读安装、配置和 FAQ。
-
-## 文档维护方式
-
-本文档使用 VitePress 编写，主要内容位于 `docs/` 目录：
-
-```text
-docs/
-  index.md
-  guide/
-    getting-started.md
-    install.md
-    usage.md
-    config.md
-    faq.md
-  .vitepress/
-    config.mjs
-```
-
-本地预览：
-
-```sh
-npm install
-npm run docs:dev
-```
+<section class="home-gallery">
+  <h2>界面预览</h2>
+  <p>第一版文档站已接入项目截图，后续可以继续按页面补充操作图。</p>
+  <div class="home-gallery-grid">
+    <figure class="home-shot">
+      <img :src="withBase('/gallery/library.png')" alt="游戏库界面" />
+      <figcaption>游戏库：网格 / 列表视图、搜索、排序与筛选。</figcaption>
+    </figure>
+    <figure class="home-shot">
+      <img :src="withBase('/gallery/detail-1.png')" alt="游戏详情页" />
+      <figcaption>详情页：封面、简介、标签、版本列表与下载入口。</figcaption>
+    </figure>
+    <figure class="home-shot">
+      <img :src="withBase('/gallery/steam-patch.png')" alt="Steam 补丁界面" />
+      <figcaption>Steam 补丁：客户端匹配与服务端补丁索引管理。</figcaption>
+    </figure>
+    <figure class="home-shot">
+      <img :src="withBase('/gallery/edit.png')" alt="元数据编辑界面" />
+      <figcaption>元数据编辑：多源刮削结果对比与字段覆盖。</figcaption>
+    </figure>
+  </div>
+</section>

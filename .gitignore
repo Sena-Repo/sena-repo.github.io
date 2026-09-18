@@ -1,6 +1,9 @@
 node_modules/
 docs/.vitepress/cache/
+docs/.vitepress/.temp/
 docs/.vitepress/dist/
-/.vitepress/
+*.sync-conflict-*
+.syncthing*
+npm-debug.log*
 .DS_Store
 Thumbs.db
