@@ -60,13 +60,13 @@ export default defineConfig({
         text: '部署与使用',
         items: [
           { text: '服务端部署', link: '/server/' },
-          { text: '客户端使用', link: '/client/' }
+          { text: '客户端使用', link: '/client/' },
+          { text: 'OpenList 文件源', link: '/client/openlist' }
         ]
       },
       {
         text: '功能专题',
         items: [
-          { text: 'OpenList 文件源', link: '/features/openlist' },
           { text: 'Steam 补丁注入', link: '/features/steam-patch' },
           { text: '元数据刮削', link: '/features/metadata-scraping' },
           { text: '下载与解压', link: '/features/downloads' },
