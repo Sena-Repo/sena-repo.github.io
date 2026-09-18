@@ -14,7 +14,7 @@
 
 > [!CAUTION]
 >
-> Sena Repo 由 AI 辅助开发，安全性未经过专业审计。**强烈建议仅在 VPN 或家庭内网环境中使用，不建议直接暴露到公网。**
+> Sena Repo 由 AI 辅助开发，安全性未经过专业审计。**强烈建议仅在 VPN 或内网环境中使用，不建议直接暴露到公网。**
 
 ---
 
@@ -65,6 +65,9 @@ docker pull ghcr.io/404-gcross/sena-repo:latest
 
 # Pre-release 测试版
 docker pull 404gcross/sena-repo:pre-release
+
+# Dev 开发版
+docker pull 404gcross/sena-repo:dev
 ```
 
 **基础启动：**
@@ -73,12 +76,17 @@ docker pull 404gcross/sena-repo:pre-release
 docker run -d \
   --name sena-repo \
   -p 11451:11451 \
-  -v /path/to/games:/games \
-  -v /path/to/data:/data \
-  -v /path/to/steam_patches:/steam_patch \
+  -v /path/to/games:/games \  #游戏库目录
+  -v /path/to/data:/data \    #数据库目录
+  -v /path/to/steam_patches:/steam_patch \  #补丁库目录
   --restart unless-stopped \
   404gcross/sena-repo:latest
 ```
+
+> [!NOTE]
+>
+> 冒号左边的/path/to/是你的真实库目录
+
 
 **纯 OpenList 启动（游戏文件全在 OpenList 上）：**
 
@@ -86,26 +94,7 @@ docker run -d \
 docker run -d \
   --name sena-repo \
   -p 11451:11451 \
-  -v /path/to/data:/data \
-  -e SENA_PATCH_DIR=/data/steam_patch \
-  --restart unless-stopped \
-  404gcross/sena-repo:latest
-```
-
-**完整启动（含刮削凭据与代理）：**
-
-```bash
-docker run -d \
-  --name sena-repo \
-  -p 11451:11451 \
-  -v /path/to/games:/games \
-  -v /path/to/data:/data \
-  -v /path/to/steam_patches:/steam_patch \
-  -e SENA_BANGUMI_TOKEN="your_token" \
-  -e SENA_VNDB_TOKEN="your_token" \
-  -e SENA_HIKARINAGI_CLIENT_ID="your_client_id" \
-  -e SENA_HIKARINAGI_CLIENT_SECRET="your_client_secret" \
-  -e SENA_PROXY="http://127.0.0.1:7890" \
+  -v /path/to/data:/data \  #资源全在openlist上，因此无需挂载游戏库与补丁库
   --restart unless-stopped \
   404gcross/sena-repo:latest
 ```
@@ -123,21 +112,7 @@ services:
       - /path/to/games:/games
       - /path/to/data:/data
       - /path/to/steam_patches:/steam_patch
-    environment:
-      - SENA_BANGUMI_TOKEN=your_token
-      - SENA_VNDB_TOKEN=your_token
-      - SENA_HIKARINAGI_CLIENT_ID=your_client_id
-      - SENA_HIKARINAGI_CLIENT_SECRET=your_client_secret
-      - SENA_PROXY=http://127.0.0.1:7890
     restart: unless-stopped
-```
-
-Docker 镜像内置 `senacli`：
-
-```bash
-docker exec -it sena-repo senacli status --roots
-docker exec -it sena-repo senacli scan --scrape missing
-docker exec -it sena-repo senacli useradd
 ```
 
 Docker 部署的升级和卸载仍应在宿主机通过重新拉取镜像、停止旧容器、重建容器完成；容器内的 `senacli update` / `senacli uninstall` 只会给出操作提示。
@@ -147,7 +122,7 @@ Docker 部署的升级和卸载仍应在宿主机通过重新拉取镜像、停�
 从 [Releases](https://github.com/404-GCross/Sena-Repo/releases) 下载 `Sena-Repo_Server_v*.tar.gz` 后手动加载。
 
 ```bash
-docker load < Sena-Repo_Server_v0.1.0.tar.gz  # 改成对应版本号
+docker load < Sena-Repo_Server_v0.1.0.tar.gz  # 下载对应版本号的Tarball
 
 docker run -d \
   --name sena-repo \
@@ -168,10 +143,6 @@ docker run -d \
 
 ### 方式三：安装脚本直接部署
 
-> [!TIP]
->
-> 适合没有 Docker 的 Linux 设备，例如部分 arm32 NAS、盒子或 Armbian 设备。amd64 / arm64 仍建议优先使用 Docker。
-
 稳定版：
 
 ```bash
@@ -184,7 +155,7 @@ curl -fsSL https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/in
 curl -fsSL https://raw.githubusercontent.com/404-GCross/Sena-Repo/dev/server/install.sh | sudo SENA_REPO_REF=dev bash
 ```
 
-已 `git clone` 的源码安装：
+`git clone` 后安装：
 
 ```bash
 git clone https://github.com/404-GCross/Sena-Repo.git
@@ -225,13 +196,16 @@ docker stop sena-repo && docker rm sena-repo
 
 # ── 裸机安装脚本 ──
 sudo bash /opt/sena-repo/install.sh --update
+
+# ── senacli ──
+senacli update
 ```
 
 ---
 
 ## 配置参考
 
-### 挂载 / 环境变量
+### docker 挂载 / 环境变量
 
 | 目录 / 变量 | 作用 | 默认值 |
 |-------------|------|--------|
@@ -302,15 +276,6 @@ sudo bash /opt/sena-repo/install.sh --update
 
 支持的平台标识：`PC`、`KRKR`、`KR`、`Ty`、`Ar`、`ONS`、`直装`，`.apk` 后缀或含"安卓""直装"字样自动归类为安卓直装。
 
-### 刮削源
-
-| 刮削源 | 说明 |
-|--------|------|
-| Hikarinagi | 需要开发者凭据，中文 Galgame 资料源 |
-| VNDB Kana v2 | 可选 Token，含游戏时长数据 |
-| Bangumi | 可选 Token |
-| Steam | 免认证 |
-| NextMoe | 支持开发中 |
 
 ---
 
