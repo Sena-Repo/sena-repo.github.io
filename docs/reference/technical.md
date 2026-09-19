@@ -161,7 +161,7 @@ FileSource（OpenList 服务器）
   → 搜索/排序/过滤 → GameDetailScreen → GameEditScreen
 
 Steam 补丁（SteamPatchScreen）
-  → 客户端 Tab + 服务端 Tab
+  → 补丁注入 Tab + 补丁配置 Tab
 
 我的（ProfileScreen）
   → 设置（SettingsScreen）→ 下载设置 / 扫描设置 / 刮削配置

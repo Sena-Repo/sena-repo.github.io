@@ -5,11 +5,11 @@ Steam 补丁功能用于为本机已安装的 Steam 正版 Galgame 匹配并注�
 ## 使用流程
 
 1. 在服务端补丁目录放置 `.zip`、`.rar`、`.7z`、`.tar`、`.gz`、`.xz` 等压缩包。
-2. 打开客户端 Steam 补丁页，切到「服务端」Tab。
+2. 打开客户端 Steam 补丁页，切到「补丁配置」Tab。
 3. 点击「扫描补丁」，服务端递归扫描补丁目录并生成 `patches.json`。
 4. 服务端尝试从文件名、父目录名或 Steam Store 搜索识别 AppID，并解析到基础游戏。
 5. 如有必要，手动编辑 AppID、补丁类型、`patch_dir` 或 `target_dir`。
-6. 切到「客户端」Tab，扫描本机 Steam `steamapps`。
+6. 切到「补丁注入」Tab，扫描本机 Steam `steamapps`。
 7. 客户端按 AppID 匹配补丁，点击「注入」下载并解压到游戏目录。
 
 ## 补丁目录与索引
@@ -63,7 +63,7 @@ data/steam_patch_index/           ← 索引目录，位于数据目录内
 | `extra` | `_Steam_Extra_Patch` |
 | `misc` | 无关键词匹配时 |
 
-关键词文件位于数据目录的 `steam_patch_index/patch_type_keywords.json`，可在客户端 Steam 补丁页的「关键词快捷匹配」中编辑，也可以直接改这个文件。文件名（统一转小写）包含任一关键词即归为该类型，按类型顺序取第一个命中的；`misc` 不参与匹配。文件只在不存在时写入默认值，之后以文件内容为准，升级服务端不会覆盖你改过的词。
+关键词文件位于数据目录的 `steam_patch_index/patch_type_keywords.json`，可在客户端 Steam 补丁页的「关键词匹配」中编辑，也可以直接改这个文件。文件名（统一转小写）包含任一关键词即归为该类型，按类型顺序取第一个命中的；`misc` 不参与匹配。文件只在不存在时写入默认值，之后以文件内容为准，升级服务端不会覆盖你改过的词。
 
 ## `patch_dir` / `target_dir`
 

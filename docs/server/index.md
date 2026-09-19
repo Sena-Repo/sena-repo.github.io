@@ -518,7 +518,7 @@ Sena 服务端只生成跳转，不代理大文件流量。OpenList 地址必须
 | `extra`（额外） | `_Steam_Extra_Patch` |
 | `misc`（其他） | 无关键词匹配时 |
 
-关键词文件位于数据目录的 `steam_patch_index/patch_type_keywords.json`，可在客户端 Steam 补丁页的"关键词快捷匹配"里编辑，也可以直接改这个文件。文件名（统一转小写）包含任一关键词即归为该类型，按类型顺序取第一个命中的；`misc` 不参与匹配。
+关键词文件位于数据目录的 `steam_patch_index/patch_type_keywords.json`，可在客户端 Steam 补丁页的「关键词匹配」里编辑，也可以直接改这个文件。文件名（统一转小写）包含任一关键词即归为该类型，按类型顺序取第一个命中的；`misc` 不参与匹配。
 
 这份文件只在不存在时才会写入上面的默认值，之后以文件内容为准——也就是说修改过关键词后，升级服务端不会覆盖你改过的词。它会被 `senacli backup` 一起导出，`senacli restore` 默认一起恢复（加 `--skip-keywords` 可保留服务器上的现有词表）。
 
