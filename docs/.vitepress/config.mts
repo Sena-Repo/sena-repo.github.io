@@ -45,8 +45,7 @@ export default defineConfig({
       { text: '首页', link: '/' },
       { text: '快速开始', link: '/guide/quick-start' },
       { text: '服务端', link: '/server/' },
-      { text: '客户端', link: '/client/' },
-      { text: '项目仓库', link: 'https://github.com/404-GCross/Sena-Repo' }
+      { text: '客户端', link: '/client/' }
     ],
     sidebar: [
       {
