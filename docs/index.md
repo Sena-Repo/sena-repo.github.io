@@ -13,11 +13,8 @@ hero:
       text: 快速开始
       link: /guide/quick-start
     - theme: alt
-      text: 下载客户端
+      text: 下载
       link: https://github.com/404-GCross/Sena-Repo/releases
-    - theme: alt
-      text: 部署服务端
-      link: /server/
 
 features:
   - title: 私有游戏库
