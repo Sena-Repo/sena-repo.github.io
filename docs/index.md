@@ -47,12 +47,12 @@ import { withBase } from 'vitepress'
       <figcaption>游戏库：网格 / 列表视图、搜索、排序与筛选。</figcaption>
     </figure>
     <figure class="home-shot">
-      <img :src="withBase('/gallery/detail-1.png')" alt="游戏详情页" />
-      <figcaption>详情页：封面、简介、标签、版本列表与下载入口。</figcaption>
-    </figure>
-    <figure class="home-shot">
       <img :src="withBase('/gallery/steam-patch.png')" alt="Steam 补丁界面" />
       <figcaption>Steam 补丁：客户端匹配与服务端补丁索引管理。</figcaption>
+    </figure>
+    <figure class="home-shot">
+      <img :src="withBase('/gallery/detail-1.png')" alt="游戏详情页" />
+      <figcaption>详情页：封面、简介、标签、版本列表与下载入口。</figcaption>
     </figure>
     <figure class="home-shot">
       <img :src="withBase('/gallery/edit.png')" alt="元数据编辑界面" />
