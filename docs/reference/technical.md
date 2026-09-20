@@ -36,6 +36,7 @@ Windows / Android / Linux            Docker 或 Python 直接部署
 | 框架 | Flutter 3.29 | 跨平台 UI |
 | 状态管理 | Provider (ChangeNotifier) | 游戏库、主题、设置 |
 | 网络 | package:http | HTTP 请求 |
+| 下载 | 内置 aria2 + Dart 并行分片回退 | 多连接下载，最多 8 分片，支持暂停/继续与限速 |
 | 解压 | 7zip-zstd（内嵌二进制） | Windows/Linux/Android |
 | 桌面 | window_manager + tray_manager | Windows 托盘、窗口管理 |
 | 通知 | flutter_local_notifications | Android 下载进度通知 |
@@ -115,7 +116,7 @@ FileSource（OpenList 服务器）
 ```
 客户端 GET /api/download/{gameId}/{versionId}
   → 服务端 FileResponse 返回文件流
-  → 客户端 stream 写入临时文件
+  → 客户端优先用内置 aria2 下载，必要时回退 Dart 并行/流式下载
   → 7zip-zstd 解压到本地下载目录
 ```
 
@@ -130,6 +131,8 @@ FileSource（OpenList 服务器）
 ```
 
 下载器只将 Sena Token 发给 Sena 服务端，后续跳转不携带认证头，确保令牌不泄露给第三方。
+
+客户端下载优先使用内置 aria2 多连接下载（Windows / Linux / Android）；aria2 不可用或下载失败时回退到 Dart 下载：文件 ≥32MB 时自动并行分片（最多 8 片、单片至少 8MB），通过 `.part` 文件与状态文件支持 Range 断点续传，必要时再回退为流式下载。网盘来源会按来源类型使用浏览器 UA 并做分片降级重试。
 
 客户端下载进度 UI 约每 250ms 刷新一次，任务状态约每 2 秒持久化一次，避免每个网络分片都写 SharedPreferences。
 
