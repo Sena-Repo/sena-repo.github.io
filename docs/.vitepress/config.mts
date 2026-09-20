@@ -43,9 +43,7 @@ export default defineConfig({
     },
     nav: [
       { text: '首页', link: '/' },
-      { text: '快速开始', link: '/guide/quick-start' },
-      { text: '服务端', link: '/server/' },
-      { text: '客户端', link: '/client/' }
+      { text: '快速开始', link: '/guide/quick-start' }
     ],
     sidebar: [
       {
