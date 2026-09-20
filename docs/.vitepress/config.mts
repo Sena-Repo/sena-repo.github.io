@@ -74,8 +74,6 @@ export default defineConfig({
         items: [
           { text: '服务端 CLI', link: '/server/cli' },
           { text: '技术架构', link: '/reference/technical' },
-          { text: '疑难杂症', link: '/reference/troubleshooting' },
-          { text: '功能测试表', link: '/reference/test-checklist' },
           { text: '贡献指南', link: '/contribution/' }
         ]
       }

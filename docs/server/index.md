@@ -560,4 +560,3 @@ Sena 服务端只生成跳转，不代理大文件流量。OpenList 地址必须
 
 - [客户端使用说明书](/client/)
 - [技术文档](/reference/technical)
-- [疑难杂症](/reference/troubleshooting)

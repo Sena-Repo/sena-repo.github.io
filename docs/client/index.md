@@ -307,4 +307,3 @@ Sena Linux touch event: update x=... y=...
 
 - [服务端部署说明书](/server/)
 - [技术文档](/reference/technical)
-- [疑难杂症](/reference/troubleshooting)
