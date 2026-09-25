@@ -74,7 +74,7 @@ docker pull 404gcross/sena-repo:latest
 # GHCR（备用）
 docker pull ghcr.io/404-gcross/sena-repo:latest
 
-# Pre-release 测试版
+# Pre-release 预发布版（发布 beta / rc 时更新）
 docker pull 404gcross/sena-repo:pre-release
 
 # Dev 开发版
@@ -198,10 +198,10 @@ docker run -d \
 curl -fsSL https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/install.sh | sudo bash
 ```
 
-安装开发版 / `dev` 分支：
+裸机安装始终跟随 `main`（最新提交）。需要固定版本或回滚时，用 `SENA_REPO_REF` 指定分支或 tag（示例用滚动开发标签 `dev-release`，正式版发布后也可用 `v0.2.0` 这类 tag）：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/404-GCross/Sena-Repo/dev/server/install.sh | sudo SENA_REPO_REF=dev bash
+curl -fsSL https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/install.sh | sudo SENA_REPO_REF=dev-release bash
 ```
 
 国内网络访问 GitHub 受限时，可以改用 `gh-proxy.com` 镜像。规则是在 GitHub 地址前加上 `https://gh-proxy.com/`；同时用 `SENA_REPO_URL` 让脚本内部拉取源码也走镜像（该地址会记入安装目录，之后 `--update` 继续使用）：
@@ -210,10 +210,6 @@ curl -fsSL https://raw.githubusercontent.com/404-GCross/Sena-Repo/dev/server/ins
 # 稳定版（镜像）
 curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/install.sh \
   | sudo SENA_REPO_URL=https://gh-proxy.com/https://github.com/404-GCross/Sena-Repo.git bash
-
-# 开发版（镜像）
-curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/404-GCross/Sena-Repo/dev/server/install.sh \
-  | sudo SENA_REPO_REF=dev SENA_REPO_URL=https://gh-proxy.com/https://github.com/404-GCross/Sena-Repo.git bash
 ```
 
 如果需要指定端口、数据目录或 Python 路径，可以把环境变量放到 `sudo` 后面：
@@ -239,13 +235,7 @@ sudo bash install.sh
 
 国内网络同样给地址加 `https://gh-proxy.com/` 前缀即可，例如 `git clone https://gh-proxy.com/https://github.com/404-GCross/Sena-Repo.git`；先下载脚本再执行、以及带环境变量的命令也同理。
 
-如果需要开发版源码：
-
-```bash
-git clone -b dev https://github.com/404-GCross/Sena-Repo.git Sena-Repo-dev
-cd Sena-Repo-dev/server
-sudo SENA_REPO_REF=dev bash install.sh
-```
+如需固定某个分支或 tag 的源码，把上面命令的 `-b` 与 `SENA_REPO_REF` 换成对应 ref 即可（例如滚动开发标签 `dev-release`，或正式版发布后的 `v0.2.0`）。
 
 脚本当前支持带 `systemd` 的常见 Linux 发行版，会自动识别 `apt-get`、`dnf`、`yum`、`zypper` 或 `pacman` 安装 Python 编译依赖、创建 venv、写入 systemd 服务并启动服务。已覆盖 Debian / Ubuntu / Armbian、Fedora / RHEL / Rocky / AlmaLinux / openEuler、openSUSE、Arch / Manjaro 等发行版。
 

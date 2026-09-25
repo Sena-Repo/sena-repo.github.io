@@ -45,7 +45,7 @@ docker run -d \
   404gcross/sena-repo:latest
 ```
 
-测试版镜像为 `404gcross/sena-repo:pre-release`，开发版为 `404gcross/sena-repo:dev`；GHCR 备用地址和完整参数见 [服务端部署](/server/)。
+预发布版本镜像为 `404gcross/sena-repo:pre-release`（发布 beta / rc 时更新），开发版为 `404gcross/sena-repo:dev`；GHCR 备用地址和完整参数见 [服务端部署](/server/)。
 
 如果游戏和 Steam 补丁都在 OpenList，可只持久化数据目录：
 
@@ -67,11 +67,7 @@ docker run -d \
 curl -fsSL https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/install.sh | sudo bash
 ```
 
-安装开发版：
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/404-GCross/Sena-Repo/dev/server/install.sh | sudo SENA_REPO_REF=dev bash
-```
+裸机安装跟随 `main`（最新提交）；需要固定版本时用 `SENA_REPO_REF` 指定分支或 tag（更多说明见 [服务端部署](/server/)）。
 
 国内网络访问 GitHub 受限时，给 GitHub 地址前加上 `https://gh-proxy.com/`，并让脚本内部拉源码也走镜像（更多命令见 [服务端部署](/server/)）：
 

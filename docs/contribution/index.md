@@ -148,8 +148,8 @@ flutter analyze --no-fatal-infos --no-fatal-warnings
 
 | 工作流 | 触发 | 作用 |
 |--------|------|------|
-| `.github/workflows/build.yml` | push / PR 到 `dev`、`main`、`master`，也支持手动触发 | 服务端 `compileall`、Flutter analyze、构建 Android / Windows / Linux / Server，并在非 PR 时发布 `dev-release` 预发布 |
-| `.github/workflows/build_Release.yml` | 手动触发 | 构建正式 Release 产物，发布 GitHub Release，并推送 Docker 镜像 |
+| `.github/workflows/build.yml` | push 到任意分支；PR 到 `main`、`master`；也支持手动触发 | 服务端 `compileall`、Flutter analyze、构建 Android / Windows / Linux / Server，并在非 PR 时发布 `dev-release` 预发布 |
+| `.github/workflows/build_Release.yml` | 推送 `v*.*.*` tag；也支持手动触发 | 校验 tag 与 `VERSION` 是否一致，构建正式 Release 产物，按 `CHANGELOG.md` 对应段落发布 GitHub Release（带预发布后缀的版本发为 Pre-release），并推送 Docker 镜像 |
 | `.github/workflows/build-7zz-zstd.yml` | 手动或维护触发 | 构建各平台 7-Zip-zstd 二进制 |
 
 `build.yml` 中的关键检查是：
