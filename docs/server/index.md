@@ -192,31 +192,25 @@ docker run -d \
 
 > 适合没有 Docker 的设备，例如部分 arm32 NAS、盒子或 Armbian 设备。amd64 / arm64 仍建议优先使用 Docker。
 
-一键下载安装稳定版（默认安装 `main` 分支）：
+一键安装（交互式会让你选版本通道，默认开发版）：
 
 ```bash
+# 直连
 curl -fsSL https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/install.sh | sudo bash
+
+# 国内镜像（只在脚本地址前加前缀；源码拉取会自动跟随，直连失败时也会自动回退到镜像）
+curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/install.sh | sudo bash
 ```
 
-安装开发版（滚动标签 `dev-release`，与 `main` 同步）：
+安装时会让你选择：
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/install.sh | sudo SENA_REPO_REF=dev-release bash
-```
+- **稳定版**：最新正式版 tag
+- **测试版**：最新预发布（beta / rc）tag
+- **开发版**：`main` 分支，滚动最新（默认，直接回车）
 
-国内网络访问 GitHub 受限时，可以改用 `gh-proxy.com` 镜像。规则是在 GitHub 地址前加上 `https://gh-proxy.com/`；同时用 `SENA_REPO_URL` 让脚本内部拉取源码也走镜像（该地址会记入安装目录，之后 `--update` 继续使用）：
+非交互环境用 `--channel` 指定，例如 `... | sudo bash -s -- --channel beta`；固定某个版本用 `--ref`（如 `--ref v0.2.0`）。选择结果会记入 `/opt/sena-repo/.version`，之后 `--update` / `senacli update` 继续沿用。
 
-```bash
-# 稳定版（镜像）
-curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/install.sh \
-  | sudo SENA_REPO_URL=https://gh-proxy.com/https://github.com/404-GCross/Sena-Repo.git bash
-
-# 开发版（镜像）
-curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/install.sh \
-  | sudo SENA_REPO_REF=dev-release SENA_REPO_URL=https://gh-proxy.com/https://github.com/404-GCross/Sena-Repo.git bash
-```
-
-需要固定版本或回滚时，用 `SENA_REPO_REF` 指定分支或 tag 即可（例如正式版发布后的 `v0.2.0`）。
+安装结束时会检测 firewalld / ufw：如果端口未放行会询问是否放行（非交互时打印手动命令）。
 
 如果需要指定端口、数据目录或 Python 路径，可以把环境变量放到 `sudo` 后面：
 
@@ -269,7 +263,8 @@ senacli backup /path/to/backup-dir
 senacli backup -o /path/to/backup.zip
 senacli backup --json-only
 senacli restore sena-backup-20260915-153000.zip
-senacli update --channel dev
+senacli update
+senacli update --channel beta
 senacli update --channel release
 senacli uninstall
 ```
@@ -286,6 +281,45 @@ senacli userdel
 ```
 
 `useradd` 在数据库没有任何用户时会创建首个服主；已有用户后默认创建普通用户，加 `--admin` 可创建管理员。`username`、`passwd`、`useradmin` 会让目标用户现有登录态失效，用户需要重新登录。`clear` 只清空游戏、版本和游戏标签关联，目录配置、用户、OpenList 与刮削配置会保留，然后重新扫描。
+
+### 连不上怎么排查
+
+按顺序检查（把 `<服务器IP>` 换成实际地址）。
+
+**1. 服务在跑吗**
+
+```bash
+senacli status        # 确认 Service active、Bind 是 0.0.0.0:<端口>
+```
+
+**2. 本机连通性**
+
+```bash
+curl -fsS http://127.0.0.1:11451/api/health    # 期望 {"status":"ok","version":"..."}
+ss -tlnp | grep 11451                          # 期望 0.0.0.0:11451 LISTEN
+```
+
+**3. 从客户端所在设备测**
+
+```bash
+curl -v http://<服务器IP>:11451/api/health
+nc -vz <服务器IP> 11451
+```
+
+**4. 本机能通、外面不通 → 基本都是防火墙**
+
+```bash
+# firewalld（Fedora / RHEL / openEuler）
+sudo firewall-cmd --permanent --add-port=11451/tcp && sudo firewall-cmd --reload
+# ufw（Ubuntu / Debian）
+sudo ufw allow 11451/tcp
+```
+
+云主机还要在服务商控制台的安全组放行对应端口；局域网内注意路由器的 AP 隔离或 VLAN 隔离。
+
+**5. 客户端设置**
+
+地址要带 scheme，例如 `http://<服务器IP>:11451`（只有走 HTTPS 反代时才勾选 HTTPS）；新服务器第一次连接会提示「服务器需要初始化」，跟着向导创建服主账号即可。
 
 ### 备份与恢复
 
