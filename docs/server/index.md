@@ -198,7 +198,7 @@ docker run -d \
 curl -fsSL https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/install.sh | sudo bash
 ```
 
-裸机安装始终跟随 `main`（最新提交）。需要固定版本或回滚时，用 `SENA_REPO_REF` 指定分支或 tag（示例用滚动开发标签 `dev-release`，正式版发布后也可用 `v0.2.0` 这类 tag）：
+安装开发版（滚动标签 `dev-release`，与 `main` 同步）：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/install.sh | sudo SENA_REPO_REF=dev-release bash
@@ -210,7 +210,13 @@ curl -fsSL https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/in
 # 稳定版（镜像）
 curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/install.sh \
   | sudo SENA_REPO_URL=https://gh-proxy.com/https://github.com/404-GCross/Sena-Repo.git bash
+
+# 开发版（镜像）
+curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/install.sh \
+  | sudo SENA_REPO_REF=dev-release SENA_REPO_URL=https://gh-proxy.com/https://github.com/404-GCross/Sena-Repo.git bash
 ```
+
+需要固定版本或回滚时，用 `SENA_REPO_REF` 指定分支或 tag 即可（例如正式版发布后的 `v0.2.0`）。
 
 如果需要指定端口、数据目录或 Python 路径，可以把环境变量放到 `sudo` 后面：
 
