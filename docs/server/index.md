@@ -204,6 +204,18 @@ curl -fsSL https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/in
 curl -fsSL https://raw.githubusercontent.com/404-GCross/Sena-Repo/dev/server/install.sh | sudo SENA_REPO_REF=dev bash
 ```
 
+国内网络访问 GitHub 受限时，可以改用 `gh-proxy.com` 镜像。规则是在 GitHub 地址前加上 `https://gh-proxy.com/`；同时用 `SENA_REPO_URL` 让脚本内部拉取源码也走镜像（该地址会记入安装目录，之后 `--update` 继续使用）：
+
+```bash
+# 稳定版（镜像）
+curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/install.sh \
+  | sudo SENA_REPO_URL=https://gh-proxy.com/https://github.com/404-GCross/Sena-Repo.git bash
+
+# 开发版（镜像）
+curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/404-GCross/Sena-Repo/dev/server/install.sh \
+  | sudo SENA_REPO_REF=dev SENA_REPO_URL=https://gh-proxy.com/https://github.com/404-GCross/Sena-Repo.git bash
+```
+
 如果需要指定端口、数据目录或 Python 路径，可以把环境变量放到 `sudo` 后面：
 
 ```bash
@@ -224,6 +236,8 @@ git clone https://github.com/404-GCross/Sena-Repo.git
 cd Sena-Repo/server
 sudo bash install.sh
 ```
+
+国内网络同样给地址加 `https://gh-proxy.com/` 前缀即可，例如 `git clone https://gh-proxy.com/https://github.com/404-GCross/Sena-Repo.git`；先下载脚本再执行、以及带环境变量的命令也同理。
 
 如果需要开发版源码：
 

@@ -73,6 +73,13 @@ curl -fsSL https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/in
 curl -fsSL https://raw.githubusercontent.com/404-GCross/Sena-Repo/dev/server/install.sh | sudo SENA_REPO_REF=dev bash
 ```
 
+国内网络访问 GitHub 受限时，给 GitHub 地址前加上 `https://gh-proxy.com/`，并让脚本内部拉源码也走镜像（更多命令见 [服务端部署](/server/)）：
+
+```bash
+curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/install.sh \
+  | sudo SENA_REPO_URL=https://gh-proxy.com/https://github.com/404-GCross/Sena-Repo.git bash
+```
+
 安装完成后会注册 `senacli`：
 
 ```bash
