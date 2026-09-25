@@ -77,11 +77,20 @@ senacli restore sena-backup-20260915-153000.zip -y
 ## 裸机更新与卸载
 
 ```bash
-senacli update --channel dev
-senacli update --channel release
-senacli update --ref main
+senacli update                      # 开发版通道（main，滚动最新）
+senacli update --channel release    # 正式版通道（最新 v* tag）
+senacli update --ref main           # 直接指定分支或 tag
 senacli uninstall --keep-data
 senacli uninstall --purge-data
 ```
 
-安装脚本会记录上次使用的仓库地址和分支。更新时会从对应远程仓库拉取最新服务端代码，并保留数据库、游戏目录、补丁目录和环境配置。
+安装脚本会把上次使用的仓库地址和分支记录到 `/opt/sena-repo/.version`；更新时会从对应远程仓库拉取最新服务端代码，并保留数据库、游戏目录、补丁目录和环境配置。如果安装时用了镜像源，后续更新会自动继续使用它。
+
+`senacli update` 默认走开发版通道（`main`）；`--channel release` 取最新的正式版 tag，还没有发布过正式版时会提示改用 `--channel dev` 或 `--ref`。远程版本检查失败时，报错会带上实际使用的仓库地址和 ref，可以用 `--repo-url` 换镜像源、`--ref` 直接指定 ref。
+
+如果安装不完整（例如 `/usr/local/bin/senacli`、`/opt/sena-repo/venv` 或 systemd 单元缺失），再次运行安装脚本会自动检测并修复；也可以显式强制完整安装：
+
+```bash
+curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/install.sh \
+  | sudo SENA_REPO_URL=https://gh-proxy.com/https://github.com/404-GCross/Sena-Repo.git bash -s -- --update
+```
