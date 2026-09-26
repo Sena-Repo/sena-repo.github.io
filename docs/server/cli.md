@@ -87,7 +87,7 @@ senacli uninstall --purge-data
 
 安装脚本会把上次使用的仓库地址和分支记录到 `/opt/sena-repo/.version`；更新时会从对应远程仓库拉取最新服务端代码，并保留数据库、游戏目录、补丁目录和环境配置。如果安装时用了镜像源，后续更新会自动继续使用它。
 
-不带 `--channel` 时沿用安装时记录的 ref；`--channel beta` / `release` 分别取最新的预发布 / 正式版 tag（还没有对应 tag 时会提示改用其他通道或 `--ref`）。检查更新时会自动重试，并在直连不可用时改用 `SENA_GH_MIRROR` 镜像（默认 `https://gh-proxy.com/`，置空可禁用）；用上镜像后会把该地址写回安装记录，后续更新继续使用。仍然失败时，报错会列出尝试过的源，可以用 `--repo-url` 换镜像源、`--ref` 直接指定 ref。
+不带 `--channel` 时沿用安装时记录的 ref；`--channel beta` / `release` 分别取最新的预发布 / 正式版 tag（还没有对应 tag 时会提示改用其他通道或 `--ref`）。检查更新时会自动重试，并在直连不可用时改用 `SENA_GH_MIRROR` 镜像（默认 `https://gh-proxy.com/`，置空可禁用）；用上镜像后会把该地址写回安装记录，后续更新继续使用。仍然失败时，报错会列出尝试过的源，可以用 `--repo-url` 换镜像源、`--ref` 直接指定 ref。直接运行 `install.sh`（不带 `--channel` / `--ref`）更新时，交互式终端下同样会询问版本通道，回车保持当前通道。
 
 如果安装不完整（例如 `/usr/local/bin/senacli`、`/opt/sena-repo/venv` 或 systemd 单元缺失），再次运行安装脚本会自动检测并修复；也可以显式强制完整安装：
 

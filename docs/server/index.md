@@ -192,7 +192,7 @@ docker run -d \
 
 > 适合没有 Docker 的设备，例如部分 arm32 NAS、盒子或 Armbian 设备。amd64 / arm64 仍建议优先使用 Docker。
 
-一键安装（交互式会让你选版本通道，默认开发版）：
+一键安装（交互式会让你选版本通道）：
 
 ```bash
 # 直连
@@ -202,13 +202,13 @@ curl -fsSL https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/in
 curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/install.sh | sudo bash
 ```
 
-安装时会让你选择：
+安装和更新时都会让你选择（直接回车保持当前通道）：
 
 - **稳定版**：最新正式版 tag
 - **测试版**：最新预发布（beta / rc）tag
-- **开发版**：`main` 分支，滚动最新（默认，直接回车）
+- **开发版**：`main` 分支，滚动最新
 
-非交互环境用 `--channel` 指定，例如 `... | sudo bash -s -- --channel beta`；固定某个版本用 `--ref`（如 `--ref v0.2.0`）。选择结果会记入 `/opt/sena-repo/.version`，之后 `--update` / `senacli update` 继续沿用。
+非交互环境用 `--channel` 指定，例如 `... | sudo bash -s -- --channel beta`；固定某个版本用 `--ref`（如 `--ref v0.2.0`）。选择结果会记入 `/opt/sena-repo/.version`，之后 `--update` / `senacli update` 继续沿用；直接回车不做选择，保持当前通道。
 
 安装结束时会检测 firewalld / ufw：如果端口未放行会询问是否放行（非交互时打印手动命令）。
 
