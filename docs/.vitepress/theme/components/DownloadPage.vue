@@ -1,11 +1,22 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 const REPO = '404-GCross/Sena-Repo'
 const API = `https://api.github.com/repos/${REPO}/releases?per_page=30`
 const RELEASES_URL = `https://github.com/${REPO}/releases`
 const CACHE_KEY = 'sena-download-releases'
 const CACHE_TTL = 10 * 60 * 1000
+const MIRROR_KEY = 'sena-download-mirror'
+
+const accelerators = [
+  { value: '', label: '直连' },
+  { value: 'https://gh-proxy.com/', label: 'gh-proxy.com' },
+  { value: 'https://ghfast.top/', label: 'ghfast.top' },
+  { value: 'https://v6.gh-proxy.org/', label: 'v6.gh-proxy.org' },
+  { value: 'https://hk.gh-proxy.org/', label: 'hk.gh-proxy.org' },
+  { value: 'https://cdn.gh-proxy.org/', label: 'cdn.gh-proxy.org' },
+  { value: 'https://edgeone.gh-proxy.org/', label: 'edgeone.gh-proxy.org' }
+]
 
 type Channel = 'stable' | 'beta' | 'dev'
 
@@ -68,6 +79,20 @@ const channel = ref<Channel>('stable')
 const osFilter = ref('all')
 const loading = ref(true)
 const error = ref('')
+const accelerator = ref('')
+
+function proxied(url: string): string {
+  return accelerator.value ? `${accelerator.value}${url}` : url
+}
+
+watch(accelerator, (value) => {
+  try {
+    if (value) localStorage.setItem(MIRROR_KEY, value)
+    else localStorage.removeItem(MIRROR_KEY)
+  } catch {
+    /* ignore */
+  }
+})
 
 function channelOf(r: RawRelease): Channel | null {
   if (r.draft) return null
@@ -190,14 +215,12 @@ const dockerRun = computed(
     `  404gcross/sena-repo:${dockerTag.value}`
 )
 
+const INSTALL_SCRIPT_URL =
+  'https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/install.sh'
+
 const installCommand = computed(() => {
-  if (channel.value === 'dev') {
-    return 'curl -fsSL https://raw.githubusercontent.com/404-GCross/Sena-Repo/dev/server/install.sh | sudo SENA_REPO_REF=dev bash'
-  }
-  if (channel.value === 'beta' && beta.value) {
-    return `curl -fsSL https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/install.sh | sudo SENA_REPO_REF=${beta.value.tag} bash`
-  }
-  return 'curl -fsSL https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/install.sh | sudo bash'
+  const channelFlag = channel.value === 'stable' ? 'stable' : channel.value === 'beta' ? 'beta' : 'dev'
+  return `curl -fsSL ${proxied(INSTALL_SCRIPT_URL)} | sudo bash -s -- --channel ${channelFlag}`
 })
 
 const copied = ref('')
@@ -286,7 +309,15 @@ async function fetchReleases(force = false) {
   }
 }
 
-onMounted(() => fetchReleases())
+onMounted(() => {
+  try {
+    const saved = localStorage.getItem(MIRROR_KEY)
+    if (saved && accelerators.some((a) => a.value === saved)) accelerator.value = saved
+  } catch {
+    /* ignore */
+  }
+  fetchReleases()
+})
 </script>
 
 <template>
@@ -330,6 +361,22 @@ onMounted(() => fetchReleases())
         <span>{{ channelConfig[channel].desc }} 当前没有该通道的发布，可在 <a :href="RELEASES_URL" target="_blank" rel="noreferrer">GitHub Releases</a> 查看全部版本。</span>
       </div>
 
+      <div class="sena-dl-accelerator">
+        <span class="sena-dl-accelerator-label">GitHub 加速</span>
+        <button
+          v-for="a in accelerators"
+          :key="a.label"
+          class="sena-dl-chip"
+          :class="{ active: accelerator === a.value }"
+          @click="accelerator = a.value"
+        >
+          {{ a.label }}
+        </button>
+      </div>
+      <p class="sena-dl-accelerator-note">
+        镜像为第三方公共服务，可能不稳定；下载异常或校验失败时请切回「直连」。加速会同时作用于下载直链和一键安装脚本。
+      </p>
+
       <div v-if="currentRelease" class="sena-dl-filters">
         <button
           v-for="f in osFilters"
@@ -358,7 +405,7 @@ onMounted(() => fetchReleases())
               <td class="sena-dl-file">{{ row.file }}</td>
               <td>{{ row.note }}</td>
               <td class="sena-dl-action">
-                <a :href="row.url">
+                <a :href="proxied(row.url)">
                   {{ row.size ? `下载 (${row.size})` : '下载' }}
                 </a>
               </td>
@@ -393,7 +440,10 @@ onMounted(() => fetchReleases())
       </p>
 
       <h3>一键安装脚本</h3>
-      <p>适合没有 Docker 的 Linux 设备，安装后会注册 <code>senacli</code> 维护命令。</p>
+      <p>
+        适合没有 Docker 的 Linux 设备，安装后会注册 <code>senacli</code> 维护命令；脚本会自动按当前通道选择源码
+        ref（开发版 <code>main</code>、测试版最新 beta/rc tag、正式版最新稳定 tag），源码拉取失败时也会自动回退到镜像。
+      </p>
       <div class="sena-dl-code">
         <button class="sena-dl-copy" @click="copy(installCommand, 'install')">
           {{ copied === 'install' ? '已复制' : '复制' }}
@@ -477,6 +527,34 @@ onMounted(() => fetchReleases())
   margin-bottom: 16px;
   color: var(--vp-c-text-2);
   font-size: 14px;
+}
+
+.sena-dl-accelerator {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 6px;
+}
+
+.sena-dl-accelerator-label {
+  font-size: 14px;
+  color: var(--vp-c-text-2);
+}
+
+.sena-dl-accelerator-note {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--vp-c-text-3);
+}
+
+.sena-dl-btn {
+  padding: 6px 16px;
+  border: 1px solid var(--vp-c-brand-1);
+  border-radius: 6px;
+  background: var(--vp-c-bg);
+  color: var(--vp-c-brand-1);
+  cursor: pointer;
 }
 
 .sena-dl-filters {
