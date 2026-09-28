@@ -14,7 +14,7 @@ hero:
       link: /guide/quick-start
     - theme: alt
       text: 下载
-      link: https://github.com/404-GCross/Sena-Repo/releases
+      link: /download
 
 features:
   - title: 私有游戏库

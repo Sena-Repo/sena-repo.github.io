@@ -43,7 +43,8 @@ export default defineConfig({
     },
     nav: [
       { text: '首页', link: '/' },
-      { text: '快速开始', link: '/guide/quick-start' }
+      { text: '快速开始', link: '/guide/quick-start' },
+      { text: '下载', link: '/download' }
     ],
     sidebar: [
       {
