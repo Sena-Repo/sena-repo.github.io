@@ -203,7 +203,7 @@ python3 ../.github/scripts/patch_linux_runner_touch.py
 | 文件 | 触发 | 构建产物 | 发布 |
 |------|------|---------|------|
 | `build.yml` | push 到任意分支；PR 到 `main`、`master`；手动 | Android APK + Windows + Linux AppImage + Server Tarball；客户端版本显示为 `dev-<短SHA>` | 非 PR 时更新 `dev-release` 预发布，并推送 `:dev` 镜像 |
-| `build_Release.yml` | 推送 `v*.*.*` tag；手动 | 同上；版本号取自 `VERSION` 并写入各端 | GitHub Release（说明取自 `CHANGELOG.md`；带预发布后缀的版本发为 Pre-release）+ `:latest` 或 `:pre-release` 镜像 |
+| `build_Release.yml` | 推送 `v*.*.*` tag；手动 | 同上；版本号取自 `VERSION` 并写入各端 | GitHub Release（说明取自 `CHANGELOG.md`；带预发布后缀的版本发为 Pre-release）+ `:latest` 或 `:beta` 镜像 |
 | `build-7zz-zstd.yml` | 手动或维护触发 | 各平台 7-Zip-zstd 二进制 | 无 |
 
 镜像同时推送到 GHCR 和 DockerHub。Windows 安装包使用 fastforge + Inno Setup，支持中文安装界面、开始菜单快捷方式和卸载支持。

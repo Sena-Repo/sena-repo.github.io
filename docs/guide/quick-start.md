@@ -45,7 +45,7 @@ docker run -d \
   404gcross/sena-repo:latest
 ```
 
-预发布版本镜像为 `404gcross/sena-repo:pre-release`（发布 beta / rc 时更新），开发版为 `404gcross/sena-repo:dev`；GHCR 备用地址和完整参数见 [服务端部署](/server/)。
+测试版镜像为 `404gcross/sena-repo:beta`（发布 beta / rc 时更新），开发版为 `404gcross/sena-repo:dev`；GHCR 备用地址和完整参数见 [服务端部署](/server/)。
 
 如果游戏和 Steam 补丁都在 OpenList，可只持久化数据目录：
 

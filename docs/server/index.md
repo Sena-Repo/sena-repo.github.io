@@ -74,8 +74,8 @@ docker pull 404gcross/sena-repo:latest
 # GHCR（备用）
 docker pull ghcr.io/404-gcross/sena-repo:latest
 
-# Pre-release 预发布版（发布 beta / rc 时更新）
-docker pull 404gcross/sena-repo:pre-release
+# Beta 测试版（发布 beta / rc 时更新）
+docker pull 404gcross/sena-repo:beta
 
 # Dev 开发版
 docker pull 404gcross/sena-repo:dev
