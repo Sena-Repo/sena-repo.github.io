@@ -361,22 +361,6 @@ onMounted(() => {
         <span>{{ channelConfig[channel].desc }} 当前没有该通道的发布，可在 <a :href="RELEASES_URL" target="_blank" rel="noreferrer">GitHub Releases</a> 查看全部版本。</span>
       </div>
 
-      <div class="sena-dl-accelerator">
-        <span class="sena-dl-accelerator-label">GitHub 加速</span>
-        <button
-          v-for="a in accelerators"
-          :key="a.label"
-          class="sena-dl-chip"
-          :class="{ active: accelerator === a.value }"
-          @click="accelerator = a.value"
-        >
-          {{ a.label }}
-        </button>
-      </div>
-      <p class="sena-dl-accelerator-note">
-        镜像为第三方公共服务，可能不稳定；下载异常或校验失败时请切回「直连」。加速会同时作用于下载直链和一键安装脚本。
-      </p>
-
       <div v-if="currentRelease" class="sena-dl-filters">
         <button
           v-for="f in osFilters"
@@ -387,7 +371,22 @@ onMounted(() => {
         >
           {{ f.label }}
         </button>
+        <label class="sena-dl-mirror">
+          <span class="sena-dl-mirror-label">GitHub 加速</span>
+          <select
+            v-model="accelerator"
+            class="sena-dl-select"
+            title="镜像为第三方服务，异常时请切回直连"
+          >
+            <option v-for="a in accelerators" :key="a.label" :value="a.value">
+              {{ a.label }}
+            </option>
+          </select>
+        </label>
       </div>
+      <p v-if="currentRelease" class="sena-dl-mirror-note">
+        镜像为第三方服务，异常时请切回直连；加速同时作用于下载直链与一键安装脚本。
+      </p>
 
       <div v-if="currentRelease && rows.length" class="sena-dl-table-wrap">
         <table class="sena-dl-table">
@@ -529,21 +528,32 @@ onMounted(() => {
   font-size: 14px;
 }
 
-.sena-dl-accelerator {
-  display: flex;
-  flex-wrap: wrap;
+.sena-dl-mirror {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin: 4px 0 6px;
-}
-
-.sena-dl-accelerator-label {
+  margin-left: auto;
   font-size: 14px;
   color: var(--vp-c-text-2);
 }
 
-.sena-dl-accelerator-note {
-  margin: 0 0 16px;
+.sena-dl-select {
+  padding: 5px 10px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 6px;
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-1);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.sena-dl-select:focus {
+  outline: none;
+  border-color: var(--vp-c-brand-1);
+}
+
+.sena-dl-mirror-note {
+  margin: 0 0 14px;
   font-size: 13px;
   color: var(--vp-c-text-3);
 }
@@ -560,6 +570,7 @@ onMounted(() => {
 .sena-dl-filters {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
   margin-bottom: 14px;
 }
