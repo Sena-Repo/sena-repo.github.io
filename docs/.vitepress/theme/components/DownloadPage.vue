@@ -480,22 +480,24 @@ onMounted(() => {
 }
 
 .sena-dl-channels {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
   margin: 20px 0 12px;
 }
 
 .sena-dl-channel {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-  padding: 10px 16px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 14px;
   border: 1px solid var(--vp-c-divider);
   border-radius: 8px;
   background: var(--vp-c-bg-soft);
   cursor: pointer;
+  text-align: left;
+  min-width: 0;
   transition: border-color 0.2s, background-color 0.2s;
 }
 
@@ -511,11 +513,15 @@ onMounted(() => {
 .sena-dl-channel-label {
   font-weight: 600;
   color: var(--vp-c-text-1);
+  white-space: nowrap;
 }
 
 .sena-dl-channel-version {
+  overflow: hidden;
   font-size: 13px;
   color: var(--vp-c-text-2);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sena-dl-meta {
@@ -680,6 +686,16 @@ onMounted(() => {
 @media (max-width: 720px) {
   .sena-dl-meta {
     flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .sena-dl-channel {
+    padding: 8px 10px;
+  }
+
+  .sena-dl-channel-version {
+    font-size: 11px;
   }
 }
 </style>
