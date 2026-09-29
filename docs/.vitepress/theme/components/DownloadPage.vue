@@ -63,7 +63,7 @@ const channelConfig: Record<Channel, { label: string; desc: string; dockerTag: s
   beta: {
     label: '测试版',
     desc: '候选发布，包含尚在验证中的改动，可能不够稳定。',
-    dockerTag: 'pre-release'
+    dockerTag: 'beta'
   },
   dev: {
     label: '开发版',
@@ -419,7 +419,7 @@ onMounted(() => {
       <h2 class="sena-dl-heading">服务端部署</h2>
 
       <h3>Docker 镜像</h3>
-      <p>正式版使用 <code>latest</code>，测试版使用 <code>pre-release</code>，开发版使用 <code>dev</code>。</p>
+      <p>正式版使用 <code>latest</code>，测试版使用 <code>beta</code>，开发版使用 <code>dev</code>。</p>
       <div class="sena-dl-code">
         <button class="sena-dl-copy" @click="copy(dockerPull, 'pull')">
           {{ copied === 'pull' ? '已复制' : '复制' }}
