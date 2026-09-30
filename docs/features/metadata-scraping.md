@@ -12,7 +12,7 @@ Sena Repo 支持为游戏补充封面、背景、简介、会社、开发商、�
 | Hikarinagi | Client ID / Secret | 中文 Galgame 资料站 |
 | NextMoe | 应用密钥 | 聚合六源；独立模式，开启后禁用其他刮削源；含游戏时长（仅单条目详情） |
 
-NextMoe 是独立的刮削模式：在客户端「扫描设置 → 刮削源」中开启后，其余刮削源会自动关闭并禁用，单条目和批量刮削都只走 NextMoe。密钥在 https://developer.nextmoe.dev 控制台自助创建应用并勾选 `catalog:read`，免费额度为每分钟 60 次、每天 50000 次；关闭 NextMoe 后其余刮削源恢复可选。
+NextMoe 是独立的刮削模式：在客户端「扫描设置 → 刮削源」中开启后，其余刮削源会自动关闭并禁用，单条目和批量刮削都只走 NextMoe。密钥在 https://developer.nextmoe.dev 控制台自助创建应用并勾选 `catalog:read`，免费额度为每分钟 60 次、每天 50000 次；关闭 NextMoe 后其余刮削源恢复可选。NextMoe 模式下还可以在客户端「刮削设置」选择补丁名称来源：默认直接用 NextMoe 名称，开启「补丁名称用 Steam 名称」后补丁会先解析 AppID、再取 Steam 商店名称（取不到时回退 NextMoe）。
 
 游戏时长来自 NextMoe 详情接口的 `playtimes` 块（多上游并列，优先取 `nextmoe` 聚合行）。由于列表接口不返回该字段，只有单条目刮削（详情）会写入平均时长，批量刮削不会写入，也不会额外请求详情。
 
