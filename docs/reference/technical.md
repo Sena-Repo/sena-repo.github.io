@@ -52,11 +52,13 @@ Windows / Android / Linux            Docker 或 Python 直接部署
 ### API 路由
 
 ```
-/api/auth/*         — 登录、注册、用户管理、通知、头像上传
+/api/auth/*         — 登录、注册、用户管理、通知、头像上传；/api/auth/oauth/* 为鲲Galgame OAuth 登录、注册与绑定
 /api/games/*        — 游戏 CRUD、搜索、版本移动
 /api/tags/*         — 标签 CRUD
 /api/roots/*        — 根目录管理、扫描触发
 /api/file-sources/* — OpenList 服务器管理
+/api/platforms/*    — 平台分类与识别规则
+/api/backup/*       — 备份导出、下载与导入（仅管理员）
 /api/download/*     — 游戏文件下载（本地/OpenList 302 重定向）
 /api/files/*        — 封面/背景/头像静态文件服务
 /api/scrape/*       — 刮削搜索、元数据应用、封面管理
@@ -77,6 +79,7 @@ User ──► Notification
   ├─ token（随机 hex，64 字符）
   ├─ is_admin
   ├─ status（active / pending）
+  ├─ oauth_provider / oauth_user_id（鲲Galgame 绑定）
   └─ avatar_path
 
 Game ──► GameVersion
@@ -86,6 +89,8 @@ Game ──► GameVersion
   ├─ RootDirectory（多对一）
   ├─ cover_path, bg_path
   ├─ developer, alias, description
+  ├─ metadata_locked（锁定后禁止修改元数据）
+  ├─ nextmoe_id
   └─ vndb_id, steam_id, bangumi_id
 
 RootDirectory
@@ -146,6 +151,8 @@ FileSource（OpenList 服务器）
   → POST /api/scrape/apply → 服务端写入数据库，封面/背景异步下载
 ```
 
+NextMoe 单条目刮削优先使用发起用户绑定的 OAuth 授权，未绑定时回退到服务端 `SENA_NEXTMOE_API_KEY`。
+
 ### Steam 补丁注入（PC）
 
 ```
@@ -202,8 +209,8 @@ python3 ../.github/scripts/patch_linux_runner_touch.py
 
 | 文件 | 触发 | 构建产物 | 发布 |
 |------|------|---------|------|
-| `build.yml` | push 到任意分支；PR 到 `main`、`master`；手动 | Android APK + Windows + Linux AppImage + Server Tarball；客户端版本显示为 `dev-<短SHA>` | 非 PR 时更新 `dev-release` 预发布，并推送 `:dev` 镜像 |
-| `build_Release.yml` | 推送 `v*.*.*` tag；手动 | 同上；版本号取自 `VERSION` 并写入各端 | GitHub Release（说明取自 `CHANGELOG.md`；带预发布后缀的版本发为 Pre-release）+ `:latest` 或 `:beta` 镜像 |
+| `build.yml` | push 到任意分支；PR 到 `main`、`master`；手动 | Android APK + Windows + Linux amd64 客户端 + 服务端镜像归档；客户端版本显示为 `dev-<短SHA>` | 非 PR 时更新 `dev-release` 预发布（说明自动生成），并推送 `:dev` 镜像 |
+| `build_Release.yml` | 推送 `v*` tag；手动 | 同上（服务端含 amd64 / arm64）；版本号取自 tag 并写入 `VERSION` 与各端 | GitHub Release（说明取自 `CHANGELOG.md`；带 `-beta` / `-rc` 后缀的发为 Pre-release，标题带提交）+ `:latest`（正式）或 `:beta`（预发布）镜像 |
 | `build-7zz-zstd.yml` | 手动或维护触发 | 各平台 7-Zip-zstd 二进制 | 无 |
 
 镜像同时推送到 GHCR 和 DockerHub。Windows 安装包使用 fastforge + Inno Setup，支持中文安装界面、开始菜单快捷方式和卸载支持。
@@ -212,6 +219,7 @@ python3 ../.github/scripts/patch_linux_runner_touch.py
 
 - 密码使用 bcrypt 哈希，不存储明文
 - Token 为 32 字节随机十六进制字符串（64 字符），改密后立即重置，客户端同步更新会话
+- 鲲Galgame OAuth 使用公共客户端 + PKCE，授权在系统浏览器完成，回调走本机回环地址
 - 所有 API 端点（除 login/register/setup/health）需要 Bearer Token 认证
 - 注册接口不允许申请管理员权限，需管理员单独授权
 - 自签 HTTPS 支持（客户端允许所有证书）

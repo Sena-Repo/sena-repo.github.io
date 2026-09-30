@@ -460,7 +460,11 @@ sudo bash /opt/sena-repo/uninstall.sh --keep-data
 | `SENA_PROXY` | 刮削代理（http/socks5） | 空 |
 | `SENA_BANGUMI_TOKEN` | Bangumi API Token | 空 |
 | `SENA_VNDB_TOKEN` | VNDB API Token | 空 |
-| `SENA_NEXTMOE_API_KEY` | NextMoe 应用密钥（`nmk_live_…`） | 空 |
+| `SENA_NEXTMOE_API_KEY` | NextMoe 应用密钥（`nmk_live_…`），OAuth 未绑定时作为后备 | 空 |
+| `SENA_OAUTH_ENABLED` | 是否开启 NextMoe OAuth 免密登录 | `true` |
+| `SENA_OAUTH_CLIENT_ID` | 覆盖默认的官方 OAuth 客户端 ID | 官方内置 |
+| `SENA_OAUTH_ISSUER` | OAuth 服务地址 | `https://account.nextmoe.com/api/v1` |
+| `SENA_OAUTH_SCOPES` | OAuth scope | `openid profile catalog:read` |
 
 ### config.yaml（可选）
 
@@ -483,6 +487,12 @@ scrapers:
   hikarinagi_client_id: ""
   hikarinagi_client_secret: ""
   nextmoe_api_key: ""
+
+oauth:
+  enabled: true
+  issuer: "https://account.nextmoe.com/api/v1"
+  client_id: ""
+  scopes: "openid profile catalog:read"
 ```
 
 ### 数据目录结构
@@ -505,9 +515,11 @@ scrapers:
 | Bangumi | 可选 Token | 中文元数据丰富 |
 | Steam | 免认证 | 封面、背景、简介 |
 | Hikarinagi | Client ID / Secret | 中文 Galgame 资料站 |
-| NextMoe | 应用密钥 | 聚合六源；独立模式，开启后禁用其他刮削源；含游戏时长（仅详情） |
+| NextMoe | OAuth 绑定或应用密钥 | 聚合六源；独立模式，开启后禁用其他刮削源；含游戏时长（仅详情） |
 
-> NextMoe 是独立的刮削模式：在客户端「扫描设置 → 刮削源」中开启 NextMoe 后，其余刮削源会自动关闭并禁用，单条目和批量刮削都只走 NextMoe。密钥在 https://developer.nextmoe.dev 控制台自助创建应用并勾选 `catalog:read`，免费额度为每分钟 60 次、每天 50000 次。关闭 NextMoe 后其余刮削源恢复可选。
+> NextMoe 是独立的刮削模式：在客户端「扫描设置 → 刮削源」中开启 NextMoe 后，其余刮削源会自动关闭并禁用，单条目和批量刮削都只走 NextMoe。关闭 NextMoe 后其余刮削源恢复可选。
+>
+> 认证优先走 OAuth：用户在客户端用鲲Galgame账号登录或在「我的 → 个人信息」绑定后，单条目刮削使用该账号自己的授权。也可以继续使用 `SENA_NEXTMOE_API_KEY`（在 https://developer.nextmoe.dev 控制台创建应用并勾选 `catalog:read`，免费额度为每分钟 60 次、每天 50000 次）作为后备。OAuth 默认启用官方客户端 ID，可用 `SENA_OAUTH_CLIENT_ID` 覆盖。
 
 > 游戏时长来自 NextMoe 详情接口的 `playtimes` 块（多上游并列，服务端优先取 `nextmoe` 聚合行、否则取票数最多的行）。由于列表接口不返回该字段，只有单条目刮削（详情）会写入平均时长，批量刮削不会写入，也不额外请求详情。
 

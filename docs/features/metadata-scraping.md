@@ -23,10 +23,15 @@ NextMoe 是独立的刮削模式：在客户端「扫描设置 → 刮削源」�
 | `SENA_BANGUMI_TOKEN` | Bangumi API Token |
 | `SENA_VNDB_TOKEN` | VNDB API Token，可选 |
 | `SENA_HIKARINAGI_CLIENT_ID` / `SENA_HIKARINAGI_CLIENT_SECRET` | Hikarinagi 开发者凭据（`config.yaml` 中为 `scrapers.hikarinagi_*`） |
-| `SENA_NEXTMOE_API_KEY` | NextMoe 应用密钥（`nmk_live_…`） |
+| `SENA_NEXTMOE_API_KEY` | NextMoe 应用密钥（`nmk_live_…`），未绑定 OAuth 时作为后备 |
+| `SENA_OAUTH_ENABLED` | 是否开启 NextMoe OAuth，默认 `true` |
+| `SENA_OAUTH_CLIENT_ID` | 覆盖默认的官方 OAuth 客户端 ID |
+| `SENA_OAUTH_ISSUER` / `SENA_OAUTH_SCOPES` | OAuth 服务地址与 scope，通常无需修改 |
 | `SENA_PROXY` | 刮削代理，支持 HTTP / SOCKS5 等 httpx 可用代理格式 |
 
-服务端可以通过环境变量或 `/data/config.yaml` 配置这些项；客户端「刮削设置（管理员）」可以保存 Bangumi / VNDB Token、配置代理，并设置批量自动刮削的字段来源规则（封面用哪个源、简介用哪个源等）。
+NextMoe 默认通过 OAuth 免密绑定：在服务器选择界面点「使用鲲Galgame账号登录」，或在初始化向导、「我的 → 个人信息」中绑定。绑定后单条目刮削使用该账号自己的授权；未绑定时回退到服务端配置的 `SENA_NEXTMOE_API_KEY`。
+
+服务端可以通过环境变量或 `/data/config.yaml` 配置这些项；客户端「设置 → 服务端 → 扫描设置」的「刮削源」区域可以保存 Bangumi / VNDB Token、配置代理、NextMoe 密钥与补丁名称来源，并设置批量自动刮削的字段来源规则（封面用哪个源、简介用哪个源等）。
 
 ## 别名自动填充
 
@@ -41,6 +46,8 @@ VNDB（`aliases`）、Bangumi（infobox「别名」）、Hikarinagi（`aliases`�
 3. 查看候选结果，展开后逐字段对比当前值与新值。
 4. 勾选要覆盖的字段；封面和背景可以从候选图中挑选（先选封面，再选背景）。
 5. 应用结果并保存游戏，图片由服务端下载并写入数据目录。
+
+NextMoe 模式下，单条目刮削会优先使用当前账号绑定的 NextMoe 授权（未绑定则使用服务端密钥）。
 
 ## 批量刮削
 
