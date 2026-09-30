@@ -203,17 +203,71 @@ const dockerTag = computed(() => channelConfig[channel.value].dockerTag)
 
 const dockerPull = computed(() => `docker pull 404gcross/sena-repo:${dockerTag.value}`)
 
-const dockerRun = computed(
+interface DirPaths {
+  games: string
+  data: string
+  steamPatch: string
+}
+
+const PATHS_KEY = 'sena-download-paths'
+const OPENLIST_KEY = 'sena-download-openlist'
+const dirPaths = ref<DirPaths>({
+  games: '/path/to/games',
+  data: '/path/to/data',
+  steamPatch: '/path/to/steam_patches'
+})
+const openlistMode = ref(false)
+
+function hostPath(value: string, fallback: string): string {
+  const v = value.trim()
+  return v || fallback
+}
+
+function invalidPath(value: string): boolean {
+  const v = value.trim()
+  return v !== '' && !v.startsWith('/')
+}
+
+const hasInvalidPath = computed(
   () =>
-    `docker run -d \\\n` +
-    `  --name sena-repo \\\n` +
-    `  -p 11451:11451 \\\n` +
-    `  -v /path/to/games:/games \\\n` +
-    `  -v /path/to/data:/data \\\n` +
-    `  -v /path/to/steam_patches:/steam_patch \\\n` +
-    `  --restart unless-stopped \\\n` +
-    `  404gcross/sena-repo:${dockerTag.value}`
+    invalidPath(dirPaths.value.data) ||
+    (!openlistMode.value &&
+      (invalidPath(dirPaths.value.games) || invalidPath(dirPaths.value.steamPatch)))
 )
+
+watch(
+  [dirPaths, openlistMode],
+  () => {
+    try {
+      localStorage.setItem(PATHS_KEY, JSON.stringify(dirPaths.value))
+      localStorage.setItem(OPENLIST_KEY, openlistMode.value ? '1' : '0')
+    } catch {
+      /* ignore */
+    }
+  },
+  { deep: true }
+)
+
+const dockerRun = computed(() => {
+  const lines = [
+    'docker run -d \\',
+    '  --name sena-repo \\',
+    '  -p 11451:11451 \\'
+  ]
+  if (!openlistMode.value) {
+    lines.push(`  -v ${hostPath(dirPaths.value.games, '/path/to/games')}:/games \\`)
+  }
+  lines.push(`  -v ${hostPath(dirPaths.value.data, '/path/to/data')}:/data \\`)
+  if (openlistMode.value) {
+    lines.push('  -e SENA_PATCH_DIR=/data/steam_patch \\')
+  } else {
+    lines.push(
+      `  -v ${hostPath(dirPaths.value.steamPatch, '/path/to/steam_patches')}:/steam_patch \\`
+    )
+  }
+  lines.push('  --restart unless-stopped \\', `  404gcross/sena-repo:${dockerTag.value}`)
+  return lines.join('\n')
+})
 
 const INSTALL_SCRIPT_URL =
   'https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/install.sh'
@@ -313,6 +367,19 @@ onMounted(() => {
   try {
     const saved = localStorage.getItem(MIRROR_KEY)
     if (saved && accelerators.some((a) => a.value === saved)) accelerator.value = saved
+    const savedPaths = localStorage.getItem(PATHS_KEY)
+    if (savedPaths) {
+      const parsed = JSON.parse(savedPaths)
+      if (parsed && typeof parsed === 'object') {
+        dirPaths.value = {
+          games: typeof parsed.games === 'string' ? parsed.games : dirPaths.value.games,
+          data: typeof parsed.data === 'string' ? parsed.data : dirPaths.value.data,
+          steamPatch:
+            typeof parsed.steamPatch === 'string' ? parsed.steamPatch : dirPaths.value.steamPatch
+        }
+      }
+    }
+    openlistMode.value = localStorage.getItem(OPENLIST_KEY) === '1'
   } catch {
     /* ignore */
   }
@@ -426,6 +493,41 @@ onMounted(() => {
         </button>
         <pre><code>{{ dockerPull }}</code></pre>
       </div>
+
+      <div class="sena-dl-paths">
+        <label class="sena-dl-field">
+          <span>游戏库目录 → <code>/games</code></span>
+          <input
+            v-model="dirPaths.games"
+            :disabled="openlistMode"
+            :class="{ invalid: invalidPath(dirPaths.games) }"
+            placeholder="/path/to/games"
+          />
+        </label>
+        <label class="sena-dl-field">
+          <span>数据目录 → <code>/data</code></span>
+          <input
+            v-model="dirPaths.data"
+            :class="{ invalid: invalidPath(dirPaths.data) }"
+            placeholder="/path/to/data"
+          />
+        </label>
+        <label class="sena-dl-field">
+          <span>补丁库目录 → <code>/steam_patch</code></span>
+          <input
+            v-model="dirPaths.steamPatch"
+            :disabled="openlistMode"
+            :class="{ invalid: invalidPath(dirPaths.steamPatch) }"
+            placeholder="/path/to/steam_patches"
+          />
+        </label>
+      </div>
+      <label class="sena-dl-openlist">
+        <input v-model="openlistMode" type="checkbox" />
+        游戏与补丁放在 OpenList 上（不挂载 /games 与 /steam_patch，改用 SENA_PATCH_DIR）
+      </label>
+      <p v-if="hasInvalidPath" class="sena-dl-warn">目录需要是绝对路径（以 / 开头）。</p>
+
       <div class="sena-dl-code">
         <button class="sena-dl-copy" @click="copy(dockerRun, 'run')">
           {{ copied === 'run' ? '已复制' : '复制' }}
@@ -642,6 +744,60 @@ onMounted(() => {
   border-top: 1px solid var(--vp-c-divider);
 }
 
+.sena-dl-paths {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 12px 0 8px;
+}
+
+.sena-dl-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--vp-c-text-2);
+}
+
+.sena-dl-field input {
+  padding: 7px 10px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 6px;
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-1);
+  font-size: 13px;
+  font-family: var(--vp-font-family-mono);
+}
+
+.sena-dl-field input:focus {
+  outline: none;
+  border-color: var(--vp-c-brand-1);
+}
+
+.sena-dl-field input.invalid {
+  border-color: #d5393e;
+}
+
+.sena-dl-field input:disabled {
+  opacity: 0.55;
+}
+
+.sena-dl-openlist {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: var(--vp-c-text-2);
+  cursor: pointer;
+}
+
+.sena-dl-warn {
+  margin: 0 0 10px;
+  color: #d5393e;
+  font-size: 13px;
+}
+
 .sena-dl-code {
   position: relative;
   margin: 12px 0;
@@ -686,6 +842,10 @@ onMounted(() => {
 @media (max-width: 720px) {
   .sena-dl-meta {
     flex-direction: column;
+  }
+
+  .sena-dl-paths {
+    grid-template-columns: 1fr;
   }
 }
 
