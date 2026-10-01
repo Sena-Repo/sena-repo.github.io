@@ -99,4 +99,4 @@ senacli backup --scope patch
 senacli restore sena-backup-20260915-153000.zip
 ```
 
-旧的仅补丁规则 JSON 备份仍可恢复。完整说明见 [服务端 CLI](/server/cli) 与 [备份与恢复](/server/#备份与恢复)。
+旧的仅补丁规则 JSON 备份仍可恢复。完整说明见 [服务端 CLI](/server/cli) 与 [备份与恢复](/server/backup)。

@@ -51,29 +51,45 @@ export default defineConfig({
         text: '快速开始',
         items: [
           { text: '项目简介', link: '/guide/introduction' },
-          { text: '快速开始', link: '/guide/quick-start' }
+          { text: '快速开始', link: '/guide/quick-start' },
+          { text: '下载', link: '/download' }
         ]
       },
       {
-        text: '部署与使用',
+        text: '功能特性',
+        items: [
+          { text: '功能总览', link: '/features/' },
+          { text: '元数据刮削', link: '/features/metadata-scraping' },
+          { text: 'Steam 补丁注入', link: '/features/steam-patch' },
+          { text: '下载与解压', link: '/features/downloads' }
+        ]
+      },
+      {
+        text: '服务端',
         items: [
           { text: '服务端部署', link: '/server/' },
-          { text: '客户端使用', link: '/client/' }
+          { text: '文件源接入', link: '/server/sources' },
+          { text: '备份与恢复', link: '/server/backup' },
+          { text: '服务端 CLI', link: '/server/cli' }
         ]
       },
       {
-        text: '功能专题',
+        text: '客户端',
         items: [
-          { text: 'Steam 补丁注入', link: '/features/steam-patch' },
-          { text: '元数据刮削', link: '/features/metadata-scraping' },
-          { text: '下载与解压', link: '/features/downloads' },
-          { text: '推送到管理器', link: '/features/manager-push' }
+          { text: '客户端使用', link: '/client/' },
+          { text: '游戏库与详情', link: '/client/library' },
+          { text: '下载与安装', link: '/client/downloads' },
+          { text: 'Steam 与补丁', link: '/client/steam' },
+          { text: '设置与备份', link: '/client/settings' }
         ]
       },
       {
-        text: '参考与维护',
+        text: '推送下载',
+        items: [{ text: '推送到管理器', link: '/push/' }]
+      },
+      {
+        text: '参考与贡献',
         items: [
-          { text: '服务端 CLI', link: '/server/cli' },
           { text: '技术架构', link: '/reference/technical' },
           { text: '贡献指南', link: '/contribution/' }
         ]
