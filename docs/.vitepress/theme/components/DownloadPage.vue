@@ -277,6 +277,11 @@ const installCommand = computed(() => {
   return `curl -fsSL ${proxied(INSTALL_SCRIPT_URL)} | sudo bash -s -- --channel ${channelFlag}`
 })
 
+const installCommandAlt = computed(() => {
+  const channelFlag = channel.value === 'stable' ? 'stable' : channel.value === 'beta' ? 'beta' : 'dev'
+  return `curl -fsSL ${proxied(INSTALL_SCRIPT_URL)} | sudo env PATH="$PATH" bash -s -- --channel ${channelFlag}`
+})
+
 const copied = ref('')
 
 function setChannel(c: string) {
@@ -551,6 +556,25 @@ onMounted(() => {
         </button>
         <pre><code>{{ installCommand }}</code></pre>
       </div>
+
+      <details class="sena-dl-faq">
+        <summary>安装报 <code>no release tags</code>，或 git 提示 <code>remote-https</code>？</summary>
+        <p>
+          部分系统（例如 fnOS 应用商店）自带的 git 缺少 HTTPS 组件，<code>sudo</code> 下会丢失组件路径，
+          一键脚本会误报「no release tags」。把当前 PATH 传给 sudo 即可：
+        </p>
+        <div class="sena-dl-code">
+          <button class="sena-dl-copy" @click="copy(installCommandAlt, 'install-alt')">
+            {{ copied === 'install-alt' ? '已复制' : '复制' }}
+          </button>
+          <pre><code>{{ installCommandAlt }}</code></pre>
+        </div>
+        <p>
+          仍然不行时，先安装系统仓库的 git（<code>sudo apt-get install -y git</code>），
+          再把上面的 <code>sudo env PATH="$PATH"</code> 换成
+          <code>sudo env PATH="/usr/bin:$PATH"</code> 重试。
+        </p>
+      </details>
 
       <h3>镜像归档</h3>
       <p>
@@ -837,6 +861,30 @@ onMounted(() => {
 .sena-dl-note {
   color: var(--vp-c-text-2);
   font-size: 14px;
+}
+
+.sena-dl-faq {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  background: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-2);
+  font-size: 14px;
+}
+
+.sena-dl-faq summary {
+  cursor: pointer;
+  color: var(--vp-c-text-1);
+  font-weight: 600;
+}
+
+.sena-dl-faq[open] summary {
+  margin-bottom: 8px;
+}
+
+.sena-dl-faq p {
+  margin: 8px 0;
 }
 
 @media (max-width: 720px) {
