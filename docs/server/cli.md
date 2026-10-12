@@ -22,7 +22,7 @@ senacli useradd --admin
 
 Docker 容器内不能直接更新或卸载宿主机服务；`senacli update` / `senacli uninstall` 在容器内只会给出提示。
 
-需要 root 的命令（`scan`、`clear`、`backup`、`restore`、`update`、`uninstall` 以及用户管理命令）以普通用户运行时，会自动通过 `sudo` 重新执行当前命令。非交互环境（管道、脚本、无终端）不会等待密码，而是提示改用 `sudo senacli <命令>`，退出码为 2；`status` / `users` 只读，不需要提权。
+裸机部署下以普通用户运行 `senacli` 时，会自动通过 `sudo` 重新执行当前命令（密码提示走当前终端，是否免密取决于 sudoers）。非交互环境（管道、脚本、无终端）不会挂起等密码，而是提示改用 `sudo senacli <命令>`，退出码为 2。Docker 容器内一般以 root 运行，不涉及提权。
 
 ## 状态与扫描
 
