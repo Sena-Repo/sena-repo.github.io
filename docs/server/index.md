@@ -218,13 +218,13 @@ curl -fsSL https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/in
 curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/404-GCross/Sena-Repo/main/server/install.sh | sudo bash
 ```
 
-安装和更新时都会让你选择（直接回车保持当前通道）：
+直接运行安装脚本时（首次安装或 `--update`）会让你选择版本通道（直接回车保持当前通道）：
 
 - **稳定版**：最新正式版 tag
 - **测试版**：最新预发布（beta / rc）tag
 - **开发版**：`main` 分支，滚动最新
 
-非交互环境用 `--channel` 指定，例如 `... | sudo bash -s -- --channel beta`；固定某个版本用 `--ref`（如 `--ref v0.2.0`）。选择结果会记入 `/opt/sena-repo/.version`，之后 `--update` / `senacli update` 继续沿用；直接回车不做选择，保持当前通道。
+非交互环境用 `--channel` 指定，例如 `... | sudo bash -s -- --channel beta`；固定某个版本用 `--ref`（如 `--ref v0.2.0`）。选择结果会记入 `/opt/sena-repo/.version`，之后 `--update` / `senacli update` 继续沿用；直接回车不做选择，保持当前通道。注意 `senacli update` 不会弹出这个选择，它直接按记录里的 ref 更新；要换通道用 `senacli update --channel beta|release`（或 `--ref`），也可以重跑安装脚本在提示里选。
 
 安装结束时会检测 firewalld / ufw：如果端口未放行会询问是否放行（非交互时打印手动命令）。
 
@@ -361,7 +361,7 @@ sudo ufw allow 11451/tcp
 sudo bash /opt/sena-repo/install.sh --update
 ```
 
-更新会从配置的远程仓库和分支拉取最新服务端代码，不使用当前目录中的旧代码；数据库、游戏目录、补丁目录和环境配置会保留。
+更新会从配置的远程仓库和分支拉取最新服务端代码，不使用当前目录中的旧代码；数据库、游戏目录、补丁目录和环境配置会保留。直接运行安装脚本时，交互式终端下会询问版本通道（回车保持当前通道）；`senacli update` 不会询问，它按安装记录里的通道升级。
 
 只检查是否有更新、不执行安装：
 
