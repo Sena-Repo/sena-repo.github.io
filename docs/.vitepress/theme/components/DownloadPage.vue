@@ -155,11 +155,23 @@ function classify(name: string): AssetMeta | null {
   if (/^Sena-Repo_Linux_.+_amd64\.tar\.gz$/.test(name)) {
     return { platform: 'Linux', os: 'linux', note: '免安装压缩包。', order: 7 }
   }
+  if (/^Sena-Repo_Linux_.+_arm64\.AppImage$/.test(name)) {
+    return { platform: 'Linux', os: 'linux', note: 'ARM64 架构，桌面 / 掌机通用，赋予可执行权限后运行。', order: 8 }
+  }
+  if (/^Sena-Repo_Linux_.+_arm64\.deb$/.test(name)) {
+    return { platform: 'Linux', os: 'linux', note: 'ARM64 架构，Debian / Ubuntu 等发行版。', order: 9 }
+  }
+  if (/^Sena-Repo_Linux_.+_arm64\.rpm$/.test(name)) {
+    return { platform: 'Linux', os: 'linux', note: 'ARM64 架构，Fedora / RHEL 等发行版。', order: 10 }
+  }
+  if (/^Sena-Repo_Linux_.+_arm64\.tar\.gz$/.test(name)) {
+    return { platform: 'Linux', os: 'linux', note: 'ARM64 架构，免安装压缩包。', order: 11 }
+  }
   if (/^Sena-Repo_Server_amd64_.+\.tar\.gz$/.test(name)) {
-    return { platform: '服务端镜像', os: 'server', note: 'amd64 架构，使用 docker load 导入。', order: 8 }
+    return { platform: '服务端镜像', os: 'server', note: 'amd64 架构，使用 docker load 导入。', order: 12 }
   }
   if (/^Sena-Repo_Server_arm64_.+\.tar\.gz$/.test(name)) {
-    return { platform: '服务端镜像', os: 'server', note: 'arm64 架构，使用 docker load 导入。', order: 9 }
+    return { platform: '服务端镜像', os: 'server', note: 'arm64 架构，使用 docker load 导入。', order: 13 }
   }
   return null
 }
