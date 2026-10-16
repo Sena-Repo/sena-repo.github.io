@@ -21,7 +21,7 @@ sena-backup-<时间戳>.zip
 |------|------|
 | `steam_patch` | 补丁匹配规则（AppID、游戏名、标签、类型、`patch_dir`、`target_dir`、清单确认状态）、补丁类型关键词与补丁库目录（含来源类型/来源名/分析模式） |
 | `library` | 目录库（含来源类型/来源名/OpenList 子路径）、**文件源**（OpenList 地址、账号、密码、启用状态）、会社、游戏（含封面/背景路径、NSFW、VNDB/Steam/Bangumi/Hikarinagi/NextMoe ID、简介等）、版本（含平台、解压密码、校验值）、标签与关联、忽略列表 |
-| `accounts` | 用户（用户名、角色、状态、密码哈希与 salt、头像路径，以及 鲲Galgame 绑定字段与是否设置过本地密码） |
+| `accounts` | 用户（用户名、角色、状态、密码哈希与 salt、头像路径，以及 NextMoe 绑定字段与是否设置过本地密码） |
 | `settings` | 扫描设置（自动扫描、间隔、目录结构）与刮削设置（启用的源、NextMoe 模式、各站 token / NextMoe API Key、代理） |
 | `media` | zip 里包含的图片文件名清单 |
 

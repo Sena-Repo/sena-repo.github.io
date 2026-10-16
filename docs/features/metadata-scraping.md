@@ -29,7 +29,7 @@ NextMoe 是独立的刮削模式：在客户端「扫描设置 → 刮削源」�
 | `SENA_OAUTH_ISSUER` / `SENA_OAUTH_SCOPES` | OAuth 服务地址与 scope，通常无需修改 |
 | `SENA_PROXY` | 刮削代理，支持 HTTP / SOCKS5 等 httpx 可用代理格式 |
 
-NextMoe 默认通过 OAuth 免密绑定：在服务器选择界面点「使用鲲Galgame账号登录」，或在初始化向导、「我的 → 个人信息」中绑定。绑定后单条目刮削使用该账号自己的授权；未绑定时回退到服务端配置的 `SENA_NEXTMOE_API_KEY`。
+NextMoe 默认通过 OAuth 免密绑定：在服务器选择界面点「使用 NextMoe·未萌 账号登录」，或在初始化向导、「我的 → 个人信息」中绑定。绑定后单条目刮削使用该账号自己的授权；未绑定时回退到服务端配置的 `SENA_NEXTMOE_API_KEY`。
 
 服务端可以通过环境变量或 `/data/config.yaml` 配置这些项；客户端「设置 → 服务端 → 扫描设置」的「刮削源」区域可以保存 Bangumi / VNDB Token、配置代理、NextMoe 密钥与补丁名称来源，并设置批量自动刮削的字段来源规则（封面用哪个源、简介用哪个源等）。
 

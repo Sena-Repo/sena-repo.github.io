@@ -52,7 +52,7 @@ Windows / Android / Linux            Docker 或 Python 直接部署
 ### API 路由
 
 ```
-/api/auth/*         — 登录、注册、用户管理、通知、头像上传；/api/auth/oauth/* 为鲲Galgame OAuth 登录、注册与绑定
+/api/auth/*         — 登录、注册、用户管理、通知、头像上传；/api/auth/oauth/* 为 NextMoe OAuth 登录、注册与绑定
 /api/games/*        — 游戏 CRUD、搜索、版本移动
 /api/tags/*         — 标签 CRUD
 /api/roots/*        — 根目录管理、扫描触发
@@ -79,7 +79,7 @@ User ──► Notification
   ├─ token（随机 hex，64 字符）
   ├─ is_admin
   ├─ status（active / pending）
-  ├─ oauth_provider / oauth_user_id（鲲Galgame 绑定）
+  ├─ oauth_provider / oauth_user_id（NextMoe 绑定）
   └─ avatar_path
 
 Game ──► GameVersion
@@ -146,7 +146,7 @@ FileSource（OpenList 服务器）
 ```
 客户端选择刮削源 → 输入搜索关键词
   → GET /api/scrape/search?q=xxx&source=vndb_kana
-  → 服务端调用对应刮削器（VNDB / Steam / Bangumi / Kungal 等）
+  → 服务端调用对应刮削器（VNDB / Steam / Bangumi / NextMoe 等）
   → 返回结果列表 → 客户端选择 → 逐字段对比
   → POST /api/scrape/apply → 服务端写入数据库，封面/背景异步下载
 ```
@@ -219,7 +219,7 @@ python3 ../.github/scripts/patch_linux_runner_touch.py
 
 - 密码使用 bcrypt 哈希，不存储明文
 - Token 为 32 字节随机十六进制字符串（64 字符），改密后立即重置，客户端同步更新会话
-- 鲲Galgame OAuth 使用公共客户端 + PKCE，授权在系统浏览器完成，回调走本机回环地址
+- NextMoe OAuth 使用公共客户端 + PKCE，授权在系统浏览器完成，回调走本机回环地址
 - 所有 API 端点（除 login/register/setup/health）需要 Bearer Token 认证
 - 注册接口不允许申请管理员权限，需管理员单独授权
 - 自签 HTTPS 支持（客户端允许所有证书）
