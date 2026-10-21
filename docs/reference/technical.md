@@ -52,7 +52,7 @@ Windows / Android / Linux            Docker 或 Python 直接部署
 ### API 路由
 
 ```
-/api/auth/*         — 登录、注册、用户管理、通知、头像上传；/api/auth/oauth/* 为 NextMoe OAuth 登录、注册与绑定
+/api/auth/*         — 登录、用户管理、头像上传；/api/auth/oauth/* 为 NextMoe OAuth 登录与绑定
 /api/games/*        — 游戏 CRUD、搜索、版本移动
 /api/tags/*         — 标签 CRUD
 /api/roots/*        — 根目录管理、扫描触发
@@ -67,18 +67,17 @@ Windows / Android / Linux            Docker 或 Python 直接部署
 /api/steam/*        — Steam 补丁匹配、索引、下载
 ```
 
-除 `/api/auth/login`、`/api/auth/register`、`/api/setup/*` 和健康检查外，所有端点需要 `Authorization: Bearer <token>` 认证。游戏列表、详情、搜索等只读端点也需要认证。
+除 `/api/auth/login`、`/api/setup/*` 和健康检查外，所有端点需要 `Authorization: Bearer <token>` 认证。游戏列表、详情、搜索等只读端点也需要认证。
 
 ### 数据模型
 
 ```
-User ──► Notification
-  │         └─ target_user_id
+User
   ├─ username
   ├─ password_hash + salt
   ├─ token（随机 hex，64 字符）
   ├─ is_admin
-  ├─ status（active / pending）
+  ├─ status（active）
   ├─ oauth_provider / oauth_user_id（NextMoe 绑定）
   └─ avatar_path
 
@@ -220,8 +219,8 @@ python3 ../.github/scripts/patch_linux_runner_touch.py
 - 密码使用 bcrypt 哈希，不存储明文
 - Token 为 32 字节随机十六进制字符串（64 字符），改密后立即重置，客户端同步更新会话
 - NextMoe OAuth 使用公共客户端 + PKCE，授权在系统浏览器完成，回调走本机回环地址
-- 所有 API 端点（除 login/register/setup/health）需要 Bearer Token 认证
-- 注册接口不允许申请管理员权限，需管理员单独授权
+- 所有 API 端点（除 login/setup/health）需要 Bearer Token 认证
+- 账号只能由管理员或服主创建，不开放自助注册
 - 自签 HTTPS 支持（客户端允许所有证书）
 - 文件服务仅允许图片扩展名（`.jpg` `.png` `.gif` `.webp` `.bmp`）
 - 外部 URL 下载前校验协议格式，防止 SSRF
