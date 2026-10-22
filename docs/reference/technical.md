@@ -58,7 +58,7 @@ Windows / Android / Linux            Docker 或 Python 直接部署
 /api/roots/*        — 根目录管理、扫描触发
 /api/file-sources/* — OpenList 服务器管理
 /api/platforms/*    — 平台分类与识别规则
-/api/backup/*       — 备份导出、下载与导入（仅管理员）
+/api/backup/*       — 备份导出、下载与导入（列表与删除需管理员，导出/下载/导入仅服主）
 /api/download/*     — 游戏文件下载（本地/OpenList 302 重定向）
 /api/files/*        — 封面/背景/头像静态文件服务
 /api/scrape/*       — 刮削搜索、元数据应用、封面管理

@@ -102,11 +102,11 @@ data/steam_patch_index/           ← 索引目录，位于数据目录内
 
 ## 备份与恢复
 
-补丁匹配规则与类型关键词会随服务端备份一起导出：
+补丁匹配规则（含锁定状态）、类型关键词与补丁库目录会随服务端备份一起导出；`--scope patch` 还会带上这些目录依赖的 OpenList 文件源，换机后按文件源名称重新绑定并重写 `source_id` / `patch_id`：
 
 ```bash
 senacli backup --scope patch
 senacli restore sena-backup-20260915-153000.zip
 ```
 
-旧的仅补丁规则 JSON 备份仍可恢复。完整说明见 [服务端 CLI](/server/cli) 与 [备份与恢复](/server/backup)。
+备份格式只接受当前版本，旧备份需用当前版本重新导出。完整说明见 [服务端 CLI](/server/cli) 与 [备份与恢复](/server/backup)。
