@@ -224,7 +224,7 @@ curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/404-GCross/Sen
 - **测试版**：最新预发布（beta / rc）tag
 - **开发版**：`main` 分支，滚动最新
 
-非交互环境用 `--channel` 指定，例如 `... | sudo bash -s -- --channel beta`；固定某个版本用 `--ref`（如 `--ref v0.2.0`）。选择结果会记入 `/opt/sena-repo/.version`，之后 `--update` / `senacli update` 继续沿用；直接回车不做选择，保持当前通道。注意 `senacli update` 不会弹出这个选择，它直接按记录里的 ref 更新；要换通道用 `senacli update --channel beta|release`（或 `--ref`），也可以重跑安装脚本在提示里选。
+非交互环境用 `--channel` 指定，例如 `... | sudo bash -s -- --channel beta`；固定某个版本用 `--ref`（如 `--ref v0.2.0`）。选择结果会记入 `/opt/sena-repo/.version`，之后 `--update` / `senacli update` 会继续沿这个**通道**解析最新版本；直接回车不做选择，保持当前通道。注意 `senacli update` 不会弹出这个选择，它按记录里的通道升级；要换通道用 `senacli update --channel beta|release`（或 `--ref`），也可以重跑安装脚本在提示里选。通道名统一为 `dev` / `beta` / `release`，`stable` 是 `release` 的别名。
 
 安装结束时会检测 firewalld / ufw：如果端口未放行会询问是否放行（非交互时打印手动命令）。
 
@@ -267,6 +267,8 @@ Steam 补丁压缩包探测需要 `7z` / `7zz` / `7za`。RPM 系发行版如果�
 
 如果服务端已经安装，再次直接运行安装脚本时会先检查远程提交版本与本地组件：源码已是最新且组件齐全时才会跳过；检测到新提交、或发现组件缺失（例如 `senacli`、venv、systemd 单元）时会重新安装并重启服务。需要强制更新可使用 `--update`，只检查而不更新可使用 `--check`。
 
+更新过程会先在旧服务仍运行时准备好新代码和独立 Python 环境，再停服切换并轮询 `/api/health`；健康检查失败会自动回滚到上一份代码并重启。旧代码保留在 `/opt/sena-repo/server.prev`。
+
 安装完成后会注册本地维护命令 `senacli`，常用命令如下：
 
 ```bash
@@ -280,6 +282,7 @@ senacli backup -o /path/to/backup.zip
 senacli backup --json-only
 senacli restore sena-backup-20260915-153000.zip
 senacli update
+senacli update --check
 senacli update --channel beta
 senacli update --channel release
 senacli uninstall
@@ -363,11 +366,15 @@ sudo bash /opt/sena-repo/install.sh --update
 
 更新会从配置的远程仓库和分支拉取最新服务端代码，不使用当前目录中的旧代码；数据库、游戏目录、补丁目录和环境配置会保留。直接运行安装脚本时，交互式终端下会询问版本通道（回车保持当前通道）；`senacli update` 不会询问，它按安装记录里的通道升级。
 
+准备工作（拉取源码、安装依赖到新的 Python 环境）都在旧服务仍在运行时完成；随后才停服、切换目录、启动，并轮询 `/api/health` 最长 2 分钟。健康检查通过才记录新版本号；失败会自动切回上一份代码、恢复环境文件并重启旧版本，命令以非零退出码结束并打印服务日志尾部。更新前如果检测到正在进行的恢复（`.restore.lock` 被占用），会直接中止。
+
 只检查是否有更新、不执行安装：
 
 ```bash
 sudo bash /opt/sena-repo/install.sh --check
 ```
+
+退出码：`0` 已是最新、`1` 有更新、`2` 检查失败。`senacli update --check` 语义相同。
 
 安装脚本会记录上次使用的仓库地址和分支；未显式设置 `SENA_REPO_URL` / `SENA_REPO_REF` 时，后续检查会继续使用该记录。
 
