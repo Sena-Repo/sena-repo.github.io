@@ -221,7 +221,7 @@ python3 ../.github/scripts/patch_linux_runner_touch.py
 - NextMoe OAuth 使用公共客户端 + PKCE，授权在系统浏览器完成，回调走本机回环地址
 - 所有 API 端点（除 login/setup/health）需要 Bearer Token 认证
 - 账号只能由管理员或服主创建，不开放自助注册
-- 自签 HTTPS 支持（客户端允许所有证书）
+- 自签 HTTPS 支持：客户端只对当前配置的主机与端口接受自签证书，首次连接会记住该证书；之后证书变化会拒绝连接并提示重新添加服务器
 - 文件服务仅允许图片扩展名（`.jpg` `.png` `.gif` `.webp` `.bmp`）
 - 外部 URL 下载前校验协议格式，防止 SSRF
 - OpenList 下载 302 跳转链中不携带 Sena Token，避免令牌泄露给第三方
