@@ -222,6 +222,7 @@ python3 ../.github/scripts/patch_linux_runner_touch.py
 - 所有 API 端点（除 login/setup/health）需要 Bearer Token 认证
 - 账号只能由管理员或服主创建，不开放自助注册
 - 自签 HTTPS 支持（客户端允许所有证书）
+- 日志按「服务器 + 账号」隔离，任务详情中的服务器路径与上游错误仅服主／管理员可读；访问日志和 HTTP 客户端日志会去掉签名等敏感查询参数
 - 文件服务仅允许图片扩展名（`.jpg` `.png` `.gif` `.webp` `.bmp`）
 - 外部 URL 下载前校验协议格式，防止 SSRF
 - OpenList 下载 302 跳转链中不携带 Sena Token，避免令牌泄露给第三方
