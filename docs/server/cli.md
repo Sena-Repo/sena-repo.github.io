@@ -51,7 +51,7 @@ senacli clear --scrape missing
 | 命令 | 说明 |
 |------|------|
 | `senacli users` | 列出用户 |
-| `senacli useradd` | 创建用户；没有任何用户时会创建首个服主 |
+| `senacli useradd` | 创建用户；没有任何用户时会创建首个管理员 |
 | `senacli useradd --admin` | 创建管理员 |
 | `senacli username` | 修改用户名 |
 | `senacli passwd` | 修改密码 |

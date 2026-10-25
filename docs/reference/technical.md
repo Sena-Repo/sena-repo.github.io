@@ -58,7 +58,7 @@ Windows / Android / Linux            Docker 或 Python 直接部署
 /api/roots/*        — 根目录管理、扫描触发
 /api/file-sources/* — OpenList 服务器管理
 /api/platforms/*    — 平台分类与识别规则
-/api/backup/*       — 备份导出、下载与导入（列表与删除需管理员，导出/下载/导入仅服主）
+/api/backup/*       — 备份导出、下载与导入（列表与删除需管理员，导出/下载/导入仅管理员）
 /api/download/*     — 游戏文件下载（本地/OpenList 302 重定向）
 /api/files/*        — 封面/背景/头像静态文件服务
 /api/scrape/*       — 刮削搜索、元数据应用、封面管理
@@ -220,9 +220,9 @@ python3 ../.github/scripts/patch_linux_runner_touch.py
 - Token 为 32 字节随机十六进制字符串（64 字符），改密后立即重置，客户端同步更新会话
 - NextMoe OAuth 使用公共客户端 + PKCE，授权在系统浏览器完成，回调走本机回环地址
 - 所有 API 端点（除 login/setup/health）需要 Bearer Token 认证
-- 账号只能由管理员或服主创建，不开放自助注册
+- 账号只能由管理员或管理员创建，不开放自助注册
 - 自签 HTTPS 支持（客户端允许所有证书）
-- 日志按「服务器 + 账号」隔离，任务详情中的服务器路径与上游错误仅服主／管理员可读；访问日志和 HTTP 客户端日志会去掉签名等敏感查询参数
+- 日志按「服务器 + 账号」隔离，任务详情中的服务器路径与上游错误仅管理员可读；访问日志和 HTTP 客户端日志会去掉签名等敏感查询参数
 - 文件服务仅允许图片扩展名（`.jpg` `.png` `.gif` `.webp` `.bmp`）
 - 外部 URL 下载前校验协议格式，防止 SSRF
 - OpenList 下载 302 跳转链中不携带 Sena Token，避免令牌泄露给第三方
