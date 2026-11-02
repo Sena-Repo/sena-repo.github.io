@@ -301,6 +301,25 @@ senacli userdel
 
 `useradd` 在数据库没有任何用户时会创建首个管理员；已有用户后默认创建普通用户，加 `--admin` 可创建管理员。`username`、`passwd`、`useradmin` 会让目标用户现有登录态失效，用户需要重新登录。`clear` 只清理可重建的游戏、版本和游戏标签关联；手动条目、仅元数据条目、已锁定条目，以及目录配置、用户、OpenList 与刮削配置都会保留，然后重新扫描。
 
+### 日志与审计
+
+服务端日志写入 `<data>/logs/`：
+
+```text
+/var/lib/sena-repo/logs/server.log
+/var/lib/sena-repo/logs/cli.log
+```
+
+按 5 MB × 5 轮转。当前会记录：
+
+- 登录成功/失败、限流、登出，以及管理员接口的 401/403（含用户、路径、来源 IP）
+- 管理员操作：用户、目录、游戏、标签、平台分类、文件源、刮削设置、备份导出/导入/删除等
+- 下载链接创建与实际签名下载（含 `user_id`）；备份下载（含账号、文件名、大小）
+- CLI 命令开始/结束（命令、操作者、耗时、退出码）；`senacli useradd/passwd/userdel/useradmin`、`scan`、`clear` 等关键动作有单独事件
+- 上传被拒绝（扩展名、大小限制）、平台分类排序、OAuth 授权开始
+
+CLI 参数中的 `--password`、`--token`、`--api-key`、`--secret`、`--proxy` 会替换为 `***`。服务端 access log 会去掉签名 URL 的 query；客户端日志按服务器 + 账号隔离，普通用户只能看自己的记录，管理员不能读取其他账号的 personal 下载日志。
+
 ### 连不上怎么排查
 
 按顺序检查（把 `<服务器IP>` 换成实际地址）。
