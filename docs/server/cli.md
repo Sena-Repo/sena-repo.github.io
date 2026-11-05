@@ -28,7 +28,7 @@ Docker 容器内不能直接更新或卸载宿主机服务；`senacli update` / 
 
 | 命令 | 说明 |
 |------|------|
-| `senacli status` | 显示服务状态、数据路径、绑定端口、游戏/版本/标签/用户数量 |
+| `senacli status` | 显示服务状态、服务端版本、数据路径、绑定端口、游戏/版本/标签/用户数量 |
 | `senacli status --roots` | 额外显示根目录列表、文件源、路径和批量刮削开关 |
 | `senacli scan` | 扫描所有目录 |
 | `senacli scan --root-id 1` | 只扫描指定根目录，可重复传入 |

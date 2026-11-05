@@ -47,7 +47,7 @@ Windows / Android / Linux            Docker 或 Python 直接部署
 
 ### 入口点
 
-`server/main.py` — FastAPI 应用入口。注册所有 API 路由，配置 CORS（`allow_origins=["*"]`），设置 lifespan 事件初始化数据库并启动自动扫描后台任务。
+`server/main.py` — FastAPI 应用入口。注册所有 API 路由，按 `server.allowed_origins` 配置 CORS（默认关闭浏览器跨域），设置 lifespan 事件初始化数据库并启动自动扫描后台任务。
 
 ### API 路由
 
@@ -75,11 +75,19 @@ Windows / Android / Linux            Docker 或 Python 直接部署
 User
   ├─ username
   ├─ password_hash + salt
-  ├─ token（随机 hex，64 字符）
-  ├─ is_admin
-  ├─ status（active）
-  ├─ oauth_provider / oauth_user_id（NextMoe 绑定）
+  ├─ role（admin / user）
+  ├─ status（active / pending / rejected）
+  ├─ password_set（是否设置过本地密码）
+  ├─ oauth_provider / oauth_subject / oauth_name / oauth_user_id（NextMoe 绑定）
   └─ avatar_path
+
+UserSession
+  ├─ user_id
+  ├─ token_hash（SHA-256，64 字符）
+  ├─ device_name
+  ├─ created_at / last_seen_at
+  ├─ expires_at（默认 30 天）
+  └─ revoked_at
 
 Game ──► GameVersion
   │         └─ platform, filename, file_size, extract_password
@@ -89,6 +97,7 @@ Game ──► GameVersion
   ├─ cover_path, bg_path
   ├─ developer, alias, description
   ├─ metadata_locked（锁定后禁止修改元数据）
+  ├─ name_locked（锁定后扫描不覆盖名称与会社）
   ├─ nextmoe_id
   └─ vndb_id, steam_id, bangumi_id
 
@@ -208,7 +217,7 @@ python3 ../.github/scripts/patch_linux_runner_touch.py
 
 | 文件 | 触发 | 构建产物 | 发布 |
 |------|------|---------|------|
-| `build.yml` | push 到任意分支；PR 到 `main`、`master`；手动 | Android APK + Windows + Linux amd64 客户端 + 服务端镜像归档；客户端版本显示为 `dev-<短SHA>` | 非 PR 时更新 `dev-release` 预发布（说明自动生成），并推送 `:dev` 镜像 |
+| `build.yml` | push 到任意分支；PR 到 `main`、`master`；手动 | Android APK + Windows + Linux amd64/arm64 客户端 + 服务端镜像归档；客户端版本显示为 `dev-<短SHA>` | 非 PR 时更新 `dev-release` 预发布（说明自动生成），并推送 `:dev` 镜像 |
 | `build_Release.yml` | 推送 `v*` tag；手动 | 同上（服务端含 amd64 / arm64）；版本号取自 tag 并写入 `VERSION` 与各端 | GitHub Release（说明取自 `CHANGELOG.md`；带 `-beta` / `-rc` 后缀的发为 Pre-release，标题带提交）+ `:latest`（正式）或 `:beta`（预发布）镜像 |
 | `build-7zz-zstd.yml` | 手动或维护触发 | 各平台 7-Zip-zstd 二进制 | 无 |
 
@@ -217,12 +226,13 @@ python3 ../.github/scripts/patch_linux_runner_touch.py
 ## 安全设计
 
 - 密码使用 bcrypt 哈希，不存储明文
-- Token 为 32 字节随机十六进制字符串（64 字符），改密后立即重置，客户端同步更新会话
+- 登录会话保存在 `user_sessions`，只存 Token 的 SHA-256 哈希；默认 30 天过期（`SENA_TOKEN_EXPIRE_DAYS`），改密或撤销后立即失效
 - NextMoe OAuth 使用公共客户端 + PKCE，授权在系统浏览器完成，回调走本机回环地址
 - 所有 API 端点（除 login/setup/health）需要 Bearer Token 认证
-- 账号只能由管理员或管理员创建，不开放自助注册
+- 账号只能由管理员创建，不开放自助注册
 - 自签 HTTPS 支持（客户端允许所有证书）
 - 日志按「服务器 + 账号」隔离，任务详情中的服务器路径与上游错误仅管理员可读；访问日志和 HTTP 客户端日志会去掉签名等敏感查询参数
+- 异常日志只记录异常类型与脱敏后的消息，不打印完整堆栈和敏感参数
 - 文件服务仅允许图片扩展名（`.jpg` `.png` `.gif` `.webp` `.bmp`）
 - 外部 URL 下载前校验协议格式，防止 SSRF
 - OpenList 下载 302 跳转链中不携带 Sena Token，避免令牌泄露给第三方

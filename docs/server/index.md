@@ -318,7 +318,7 @@ senacli userdel
 - CLI 命令开始/结束（命令、操作者、耗时、退出码）；`senacli useradd/passwd/userdel/useradmin`、`scan`、`clear` 等关键动作有单独事件
 - 上传被拒绝（扩展名、大小限制）、平台分类排序、OAuth 授权开始
 
-CLI 参数中的 `--password`、`--token`、`--api-key`、`--secret`、`--proxy` 会替换为 `***`。服务端 access log 会去掉签名 URL 的 query；客户端日志按服务器 + 账号隔离，普通用户只能看自己的记录，管理员不能读取其他账号的 personal 下载日志。
+CLI 参数中的 `--password`、`--token`、`--api-key`、`--secret`、`--proxy` 会替换为 `***`。异常日志只记录异常类型与脱敏后的消息，不打印完整堆栈和敏感参数。服务端 access log 会去掉签名 URL 的 query；客户端日志按服务器 + 账号隔离，普通用户只能看自己的记录，管理员不能读取其他账号的 personal 下载日志。
 
 ### 连不上怎么排查
 
@@ -430,6 +430,8 @@ sudo bash /opt/sena-repo/uninstall.sh --keep-data
 | `SENA_PATCH_DIR` | Steam 补丁目录 | `/steam_patch` |
 | `SENA_HOST` | 监听地址 | `0.0.0.0` |
 | `SENA_PORT` | 监听端口 | `11451` |
+| `SENA_ALLOWED_ORIGINS` | 允许浏览器跨域的来源列表（逗号分隔） | 空（关闭跨域） |
+| `SENA_TOKEN_EXPIRE_DAYS` | 登录会话有效期（天） | `30` |
 | `SENA_PROXY` | 刮削代理（http/socks5） | 空 |
 | `SENA_BANGUMI_TOKEN` | Bangumi API Token | 空 |
 | `SENA_VNDB_TOKEN` | VNDB API Token | 空 |
@@ -447,6 +449,8 @@ sudo bash /opt/sena-repo/uninstall.sh --keep-data
 server:
   host: 0.0.0.0
   port: 11451
+  allowed_origins: []
+  token_expire_days: 30
 
 games_path: /games
 data_path: /data
