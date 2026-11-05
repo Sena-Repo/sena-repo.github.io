@@ -438,8 +438,12 @@ sudo bash /opt/sena-repo/uninstall.sh --keep-data
 | `SENA_NEXTMOE_API_KEY` | NextMoe 应用密钥（`nmk_live_…`），OAuth 未绑定时作为后备 | 空 |
 | `SENA_OAUTH_ENABLED` | 是否开启 NextMoe OAuth 免密登录 | `true` |
 | `SENA_OAUTH_CLIENT_ID` | 覆盖默认的官方 OAuth 客户端 ID | 官方内置 |
-| `SENA_OAUTH_ISSUER` | OAuth 服务地址 | `https://account.nextmoe.com/api/v1` |
-| `SENA_OAUTH_SCOPES` | OAuth scope | `openid profile catalog:read` |
+| `SENA_OAUTH_ISSUER` | NextMoe OAuth 服务地址 | `https://account.nextmoe.com/api/v1` |
+| `SENA_OAUTH_SCOPES` | NextMoe OAuth scope | `openid profile catalog:read` |
+| `SENA_OAUTH_HIKARINAGI_ENABLED` | 是否开启 Hikarinagi OAuth 登录与绑定 | `true` |
+| `SENA_OAUTH_HIKARINAGI_CLIENT_ID` | Hikarinagi public client ID | 官方内置 |
+| `SENA_OAUTH_HIKARINAGI_ISSUER` | Hikarinagi OIDC 地址 | `https://id.hikarinagi.org/oidc` |
+| `SENA_OAUTH_HIKARINAGI_SCOPES` | Hikarinagi OAuth scope | `openid profile offline_access catalog:full` |
 
 ### config.yaml（可选）
 
@@ -470,6 +474,17 @@ oauth:
   issuer: "https://account.nextmoe.com/api/v1"
   client_id: ""
   scopes: "openid profile catalog:read"
+  providers:
+    nextmoe:
+      enabled: true
+    hikarinagi:
+      enabled: true
+      issuer: "https://id.hikarinagi.org/oidc"
+      client_id: ""
+      scopes: "openid profile offline_access catalog:full"
+      redirect_uri: "http://127.0.0.1:11453/callback"
+      prompt: "consent"
+      numeric_user_id: false
 ```
 
 ### 数据目录结构
@@ -497,6 +512,10 @@ oauth:
 > NextMoe 是独立的刮削模式：在客户端「扫描设置 → 刮削源」中开启 NextMoe 后，其余刮削源会自动关闭并禁用，单条目和批量刮削都只走 NextMoe。关闭 NextMoe 后其余刮削源恢复可选。
 >
 > 认证优先走 OAuth：用户在客户端用 NextMoe 账号登录或在「我的 → 个人信息」绑定后，单条目刮削使用该账号自己的授权。也可以继续使用 `SENA_NEXTMOE_API_KEY`（在 https://developer.nextmoe.dev 控制台创建应用并勾选 `catalog:read`，免费额度为每分钟 60 次、每天 50000 次）作为后备。OAuth 默认启用官方客户端 ID，可用 `SENA_OAUTH_CLIENT_ID` 覆盖。
+>
+> Hikarinagi 同样优先使用用户绑定的 OAuth 令牌：服务端把令牌加密保存在绑定记录中，并自动续期；用户令牌失效时会提示重新授权，不会静默改用其他账号。未绑定时继续使用 `hikarinagi_client_id` / `hikarinagi_client_secret` 应用凭据。定时扫描使用服务端应用凭据。
+>
+> 升级到多提供方版本后，服务端首次启动会自动把旧 `users.oauth_*` 中的 NextMoe 绑定回填到新表；不需要手动执行迁移。回填只执行一次，之后解除的绑定不会在重启时恢复。
 
 > 游戏时长来自 NextMoe 详情接口的 `playtimes` 块（多上游并列，服务端优先取 `nextmoe` 聚合行、否则取票数最多的行）。由于列表接口不返回该字段，只有单条目刮削（详情）会写入平均时长，批量刮削不会写入，也不额外请求详情。
 

@@ -9,8 +9,8 @@ Sena Repo 支持为游戏补充封面、背景、简介、会社、开发商、�
 | VNDB | 可选 Token | 含平均游玩时长数据 |
 | Bangumi | 可选 Token | 中文元数据丰富 |
 | Steam | 免认证 | 封面、背景、简介 |
-| Hikarinagi | Client ID / Secret | 中文 Galgame 资料站 |
-| NextMoe | 应用密钥 | 聚合六源；独立模式，开启后禁用其他刮削源；含游戏时长（仅单条目详情） |
+| Hikarinagi | OAuth 用户令牌 / Client ID + Secret | 中文 Galgame 资料站 |
+| NextMoe | 应用密钥或 OAuth 用户令牌 | 聚合六源；独立模式，开启后禁用其他刮削源；含游戏时长（仅单条目详情） |
 
 NextMoe 是独立的刮削模式：在客户端「扫描设置 → 刮削源」中开启后，其余刮削源会自动关闭并禁用，单条目和批量刮削都只走 NextMoe。密钥在 https://developer.nextmoe.dev 控制台自助创建应用并勾选 `catalog:read`，免费额度为每分钟 60 次、每天 50000 次；关闭 NextMoe 后其余刮削源恢复可选。NextMoe 模式下还可以在客户端「刮削设置」选择补丁名称来源：默认直接用 NextMoe 名称，开启「补丁名称用 Steam 名称」后补丁会先解析 AppID、再取 Steam 商店名称（取不到时回退 NextMoe）。
 
@@ -22,14 +22,18 @@ NextMoe 是独立的刮削模式：在客户端「扫描设置 → 刮削源」�
 |--------|------|
 | `SENA_BANGUMI_TOKEN` | Bangumi API Token |
 | `SENA_VNDB_TOKEN` | VNDB API Token，可选 |
-| `SENA_HIKARINAGI_CLIENT_ID` / `SENA_HIKARINAGI_CLIENT_SECRET` | Hikarinagi 开发者凭据（`config.yaml` 中为 `scrapers.hikarinagi_*`） |
+| `SENA_HIKARINAGI_CLIENT_ID` / `SENA_HIKARINAGI_CLIENT_SECRET` | Hikarinagi 应用凭据（`config.yaml` 中为 `scrapers.hikarinagi_*`），用户未绑定时使用 |
 | `SENA_NEXTMOE_API_KEY` | NextMoe 应用密钥（`nmk_live_…`），未绑定 OAuth 时作为后备 |
 | `SENA_OAUTH_ENABLED` | 是否开启 NextMoe OAuth，默认 `true` |
 | `SENA_OAUTH_CLIENT_ID` | 覆盖默认的官方 OAuth 客户端 ID |
-| `SENA_OAUTH_ISSUER` / `SENA_OAUTH_SCOPES` | OAuth 服务地址与 scope，通常无需修改 |
+| `SENA_OAUTH_ISSUER` / `SENA_OAUTH_SCOPES` | NextMoe OAuth 服务地址与 scope，通常无需修改 |
+| `SENA_OAUTH_HIKARINAGI_ENABLED` | 是否开启 Hikarinagi OAuth 登录、绑定与用户令牌刮削，默认 `true` |
+| `SENA_OAUTH_HIKARINAGI_CLIENT_ID` / `SENA_OAUTH_HIKARINAGI_SCOPES` | Hikarinagi public client ID 与 scope |
 | `SENA_PROXY` | 刮削代理，支持 HTTP / SOCKS5 等 httpx 可用代理格式 |
 
 NextMoe 默认通过 OAuth 免密绑定：在服务器选择界面点「使用 NextMoe·未萌 账号登录」，或在初始化向导、「我的 → 个人信息」中绑定。绑定后单条目刮削使用该账号自己的授权；未绑定时回退到服务端配置的 `SENA_NEXTMOE_API_KEY`。
+
+Hikarinagi 也可在「我的 → 个人信息」绑定。绑定后，服务端会加密保存该账号的 Hikarinagi 令牌并自动续期，单条目搜索和手动刮削使用用户自己的授权；未绑定时回退到 `scrapers.hikarinagi_client_id` / `client_secret`。用户授权失效时会提示重新授权，定时扫描仍使用服务端应用凭据。
 
 服务端可以通过环境变量或 `/data/config.yaml` 配置这些项；客户端「设置 → 服务端 → 扫描设置」的「刮削源」区域可以保存 Bangumi / VNDB Token、配置代理、NextMoe 密钥与补丁名称来源，并设置批量自动刮削的字段来源规则（封面用哪个源、简介用哪个源等）。
 
