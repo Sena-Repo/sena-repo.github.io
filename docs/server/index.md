@@ -443,7 +443,7 @@ sudo bash /opt/sena-repo/uninstall.sh --keep-data
 | `SENA_OAUTH_HIKARINAGI_ENABLED` | 是否开启 Hikarinagi OAuth 登录与绑定 | `true` |
 | `SENA_OAUTH_HIKARINAGI_CLIENT_ID` | Hikarinagi public client ID | 官方内置 |
 | `SENA_OAUTH_HIKARINAGI_ISSUER` | Hikarinagi OIDC 地址 | `https://id.hikarinagi.org/oidc` |
-| `SENA_OAUTH_HIKARINAGI_SCOPES` | Hikarinagi OAuth scope | `openid profile offline_access catalog:full` |
+| `SENA_OAUTH_HIKARINAGI_SCOPES` | Hikarinagi OAuth scope | `openid profile offline_access catalog:full user:read` |
 
 ### config.yaml（可选）
 
@@ -481,11 +481,13 @@ oauth:
       enabled: true
       issuer: "https://id.hikarinagi.org/oidc"
       client_id: ""
-      scopes: "openid profile offline_access catalog:full"
+      scopes: "openid profile offline_access catalog:full user:read"
       redirect_uri: "http://127.0.0.1:11453/callback"
       prompt: "consent"
-      numeric_user_id: false
+      numeric_user_id: true
 ```
+
+Hikarinagi 开发者后台需为应用启用 `user:read`，服务端在验证 ID token 后通过 `/v3/user/me` 读取数字用户 ID，用于管理员预绑定和首次授权登录。旧配置也会补入此必需权限；旧授权需重新授权，新权限不会自动附加到原令牌。已有绑定会在下一次成功授权时补全数字 ID，无需数据库迁移。
 
 ### 数据目录结构
 
