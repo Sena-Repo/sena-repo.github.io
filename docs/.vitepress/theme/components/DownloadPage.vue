@@ -46,6 +46,7 @@ interface Release {
 
 interface Row {
   platform: string
+  arch: string
   os: string
   file: string
   note: string
@@ -128,6 +129,7 @@ function formatDate(iso: string): string {
 
 interface AssetMeta {
   platform: string
+  arch: string
   os: string
   note: string
   order: number
@@ -135,43 +137,43 @@ interface AssetMeta {
 
 function classify(name: string): AssetMeta | null {
   if (/^Sena-Repo_Windows_.+_amd64_Setup\.exe$/.test(name)) {
-    return { platform: 'Windows', os: 'windows', note: '安装版，推荐使用。', order: 1 }
+    return { platform: 'Windows', arch: 'x64', os: 'windows', note: '安装版，推荐使用。', order: 1 }
   }
   if (/^Sena-Repo_Windows_.+_amd64\.zip$/.test(name)) {
-    return { platform: 'Windows', os: 'windows', note: '便携版，解压后直接运行。', order: 2 }
+    return { platform: 'Windows', arch: 'x64', os: 'windows', note: '便携版，解压后直接运行。', order: 2 }
   }
   if (/^Sena-Repo_Android_.+_universal\.apk$/.test(name)) {
-    return { platform: 'Android', os: 'android', note: '通用安装包，首次使用需授予「所有文件访问」权限。', order: 3 }
+    return { platform: 'Android', arch: 'arm64-v8a / armeabi-v7a / x86_64', os: 'android', note: '通用安装包，首次使用需授予「所有文件访问」权限。', order: 3 }
   }
   if (/^Sena-Repo_Linux_.+_amd64\.AppImage$/.test(name)) {
-    return { platform: 'Linux', os: 'linux', note: '桌面 / 掌机通用，赋予可执行权限后运行。', order: 4 }
+    return { platform: 'Linux', arch: 'amd64', os: 'linux', note: '桌面 / 掌机通用，赋予可执行权限后运行。', order: 4 }
   }
   if (/^Sena-Repo_Linux_.+_amd64\.deb$/.test(name)) {
-    return { platform: 'Linux', os: 'linux', note: 'Debian / Ubuntu 等发行版。', order: 5 }
+    return { platform: 'Linux', arch: 'amd64', os: 'linux', note: 'Debian / Ubuntu 等发行版。', order: 5 }
   }
   if (/^Sena-Repo_Linux_.+_amd64\.rpm$/.test(name)) {
-    return { platform: 'Linux', os: 'linux', note: 'Fedora / RHEL 等发行版。', order: 6 }
+    return { platform: 'Linux', arch: 'amd64', os: 'linux', note: 'Fedora / RHEL 等发行版。', order: 6 }
   }
   if (/^Sena-Repo_Linux_.+_amd64\.tar\.gz$/.test(name)) {
-    return { platform: 'Linux', os: 'linux', note: '免安装压缩包。', order: 7 }
+    return { platform: 'Linux', arch: 'amd64', os: 'linux', note: '免安装压缩包。', order: 7 }
   }
   if (/^Sena-Repo_Linux_.+_arm64\.AppImage$/.test(name)) {
-    return { platform: 'Linux', os: 'linux', note: 'ARM64 架构，桌面 / 掌机通用，赋予可执行权限后运行。', order: 8 }
+    return { platform: 'Linux', arch: 'arm64', os: 'linux', note: '桌面 / 掌机通用，赋予可执行权限后运行。', order: 8 }
   }
   if (/^Sena-Repo_Linux_.+_arm64\.deb$/.test(name)) {
-    return { platform: 'Linux', os: 'linux', note: 'ARM64 架构，Debian / Ubuntu 等发行版。', order: 9 }
+    return { platform: 'Linux', arch: 'arm64', os: 'linux', note: 'Debian / Ubuntu 等发行版。', order: 9 }
   }
   if (/^Sena-Repo_Linux_.+_arm64\.rpm$/.test(name)) {
-    return { platform: 'Linux', os: 'linux', note: 'ARM64 架构，Fedora / RHEL 等发行版。', order: 10 }
+    return { platform: 'Linux', arch: 'arm64', os: 'linux', note: 'Fedora / RHEL 等发行版。', order: 10 }
   }
   if (/^Sena-Repo_Linux_.+_arm64\.tar\.gz$/.test(name)) {
-    return { platform: 'Linux', os: 'linux', note: 'ARM64 架构，免安装压缩包。', order: 11 }
+    return { platform: 'Linux', arch: 'arm64', os: 'linux', note: '免安装压缩包。', order: 11 }
   }
   if (/^Sena-Repo_Server_amd64_.+\.tar\.gz$/.test(name)) {
-    return { platform: '服务端镜像', os: 'server', note: 'amd64 架构，使用 docker load 导入。', order: 12 }
+    return { platform: '服务端镜像', arch: 'amd64', os: 'server', note: '使用 docker load 导入。', order: 12 }
   }
   if (/^Sena-Repo_Server_arm64_.+\.tar\.gz$/.test(name)) {
-    return { platform: '服务端镜像', os: 'server', note: 'arm64 架构，使用 docker load 导入。', order: 13 }
+    return { platform: '服务端镜像', arch: 'arm64', os: 'server', note: '使用 docker load 导入。', order: 13 }
   }
   return null
 }
@@ -192,6 +194,7 @@ const rows = computed<Row[]>(() => {
     if (osFilter.value !== 'all' && osFilter.value !== meta.os) continue
     list.push({
       platform: meta.platform,
+      arch: meta.arch,
       os: meta.os,
       file: asset.name,
       note: meta.note,
@@ -477,6 +480,7 @@ onMounted(() => {
           <thead>
             <tr>
               <th>平台</th>
+              <th>架构</th>
               <th>文件</th>
               <th>说明</th>
               <th>下载</th>
@@ -485,6 +489,7 @@ onMounted(() => {
           <tbody>
             <tr v-for="row in rows" :key="row.file">
               <td>{{ row.platform }}</td>
+              <td class="sena-dl-arch">{{ row.arch }}</td>
               <td class="sena-dl-file">{{ row.file }}</td>
               <td>{{ row.note }}</td>
               <td class="sena-dl-action">
@@ -767,6 +772,10 @@ onMounted(() => {
 .sena-dl-file {
   word-break: break-all;
   font-family: var(--vp-font-family-mono);
+  font-size: 13px;
+}
+.sena-dl-arch {
+  white-space: nowrap;
   font-size: 13px;
 }
 
