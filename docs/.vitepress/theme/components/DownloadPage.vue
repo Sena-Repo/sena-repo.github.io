@@ -916,6 +916,88 @@ onMounted(() => {
   .sena-dl-paths {
     grid-template-columns: 1fr;
   }
+
+  .sena-dl-channel {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .sena-dl-channel-version {
+    font-size: 11px;
+    word-break: break-all;
+  }
+
+  .sena-dl-table-wrap {
+    overflow-x: visible;
+  }
+
+  .sena-dl-table,
+  .sena-dl-table tbody,
+  .sena-dl-table tr,
+  .sena-dl-table td {
+    display: block;
+  }
+
+  .sena-dl-table thead {
+    display: none;
+  }
+
+  .sena-dl-table tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 4px 10px;
+    margin-bottom: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--vp-c-divider);
+    border-radius: 10px;
+    background: var(--vp-c-bg-soft);
+  }
+
+  .sena-dl-table td {
+    padding: 0;
+    border: none;
+  }
+
+  .sena-dl-table td:nth-child(1) {
+    font-weight: 600;
+  }
+
+  .sena-dl-table td:nth-child(2) {
+    justify-self: end;
+    padding: 2px 8px;
+    border: 1px solid var(--vp-c-divider);
+    border-radius: 999px;
+    color: var(--vp-c-text-2);
+    font-size: 12px;
+  }
+
+  .sena-dl-table td:nth-child(3),
+  .sena-dl-table td:nth-child(4),
+  .sena-dl-table td:nth-child(5) {
+    grid-column: 1 / -1;
+  }
+
+  .sena-dl-table td.sena-dl-file {
+    word-break: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .sena-dl-table td.sena-dl-action {
+    margin-top: 4px;
+  }
+
+  .sena-dl-table td.sena-dl-action a {
+    display: block;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: var(--vp-c-brand-1);
+    color: #fff;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 500;
+  }
 }
 
 @media (max-width: 480px) {
