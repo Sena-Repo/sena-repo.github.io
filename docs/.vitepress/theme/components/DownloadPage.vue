@@ -143,7 +143,7 @@ function classify(name: string): AssetMeta | null {
     return { platform: 'Windows', arch: 'x64', os: 'windows', note: '便携版，解压后直接运行。', order: 2 }
   }
   if (/^Sena-Repo_Android_.+_universal\.apk$/.test(name)) {
-    return { platform: 'Android', arch: 'arm64-v8a / armeabi-v7a / x86_64', os: 'android', note: '通用安装包，首次使用需授予「所有文件访问」权限。', order: 3 }
+    return { platform: 'Android', arch: '通用', os: 'android', note: '通用安装包，首次使用需授予「所有文件访问」权限。', order: 3 }
   }
   if (/^Sena-Repo_Linux_.+_amd64\.AppImage$/.test(name)) {
     return { platform: 'Linux', arch: 'amd64', os: 'linux', note: '桌面 / 掌机通用，赋予可执行权限后运行。', order: 4 }
