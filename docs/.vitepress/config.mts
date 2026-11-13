@@ -60,6 +60,7 @@ export default defineConfig({
         items: [
           { text: '功能总览', link: '/features/' },
           { text: '元数据刮削', link: '/features/metadata-scraping' },
+          { text: '智能体扫描与刮削', link: '/features/agent' },
           { text: 'Steam 补丁注入', link: '/features/steam-patch' },
           { text: '下载与解压', link: '/features/downloads' }
         ]
